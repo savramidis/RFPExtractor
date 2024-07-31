@@ -83,7 +83,7 @@ for blob in blob_list:
                 continue
 
             # Append the extracted information to the respective lists
-            all_required_roles.extend(required_roles)
+            all_required_roles.append(required_roles)
             all_role_requirements.append(role_requirements)
             all_resume_requirements.append(resume_requirements)
 
