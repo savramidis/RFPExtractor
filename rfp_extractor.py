@@ -74,10 +74,12 @@ for blob in blob_list:
             "page_number": page.page_number,
             "lines": []
         }
+        
         page_text = ""
         for line in page.lines:
             page_text += line.content + "\n"
             page_data["lines"].append(line.content)
+            
         pages_data.append(page_data)
 
         # Use OpenAI to extract Staffing Requirements from each page
