@@ -9,18 +9,9 @@ load_dotenv()
 # Get the OpenAI key and endpoint from environment variables
 api_key = os.getenv("AZURE_OPENAI_API_KEY")
 api_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
-deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")  # Use the correct deployment name
+deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
 
 def extract_information_from_page(page_text):
-    """
-    Use Azure OpenAI to extract Staffing Requirements from a given page text.
-    
-    Args:
-        page_text (str): The text content of the page.
-    
-    Returns:
-        str: The extracted information.
-    """
     url = f"{api_endpoint}/openai/deployments/{deployment_name}/chat/completions?api-version=2024-02-15-preview"
     headers = {
         "Content-Type": "application/json",
@@ -35,7 +26,16 @@ def extract_information_from_page(page_text):
         "content": [
             {
             "type": "text",
-            "prompt": "Extract the Staffing Requirements including Required Roles, Role Requirements, and Resume Requirements from the following page. Provide the output in JSON format with keys 'required_roles', 'role_requirements', and 'resume_requirements':\n\n{page_text}",
+            "prompt": "Extract the Staffing Requirements which can include Required Roles, Role Requirements, and Resume Requirements from the following text. Provide the output in JSON format with keys 'required_roles', 'role_requirements', and 'resume_requirements'.",
+            }
+        ]
+        },
+        {
+        "role": "user",
+        "content": [
+            {
+            "type": "text",
+            "content": page_text
             }
         ]
         }
@@ -44,8 +44,9 @@ def extract_information_from_page(page_text):
     "top_p": 0.95,
     "max_tokens": 800
     }
-
-    response = requests.post(url, headers=headers, json=payload)
+    
+    jsonPayload = json.dumps(payload)
+    response = requests.post(url, headers=headers, data=jsonPayload)
     
     if response.status_code == 200:
         response_data = response.json()
