@@ -35,16 +35,20 @@ blob_list = container_client.list_blobs(name_starts_with=folder_path)
 # Allowed file extensions
 allowed_extensions = {'.docx', '.pdf'}
 
-for blob in blob_list:
+# Initialize a list to hold all extracted information
+all_required_roles = []
+all_role_requirements = []
+all_resume_requirements = []
 
-     # Check file extension
+for blob in blob_list:
+    # Check file extension
     _, file_extension = os.path.splitext(blob.name)  # Correctly access the file extension part of the tuple
     if file_extension.lower() not in allowed_extensions:
         print(f"Skipping blob: {blob.name} (unsupported file type)")
         continue
 
     print(f"Processing blob: {blob.name}")
-    
+
     # Create a BlobClient for the specific blob
     blob_client = container_client.get_blob_client(blob)
 
@@ -57,63 +61,53 @@ for blob in blob_list:
         "prebuilt-layout",  # You can change this to other models like "prebuilt-invoice" or your custom model ID
         file_content
     )
+
     result = poller.result()
-
-    # Generate a UUID for the document
-    rfp_id = str(uuid.uuid4())
-
-    # Initialize a list to hold page data and extracted information
-    pages_data = []
-    required_roles = []
-    role_requirements = []
-    resume_requirements = []
 
     # Process the result and extract information from each page
     for page in result.pages:
-        page_data = {
-            "page_number": page.page_number,
-            "lines": []
-        }
-        
         page_text = ""
         for line in page.lines:
             page_text += line.content + "\n"
-            page_data["lines"].append(line.content)
-            
-        pages_data.append(page_data)
 
         # Use OpenAI to extract Staffing Requirements from each page
         extracted_info = extract_information_from_page(page_text)
-        
+
         if extracted_info:
+            required_roles = extracted_info.get("required_roles", [])
+            role_requirements = extracted_info.get("role_requirements", {})
+            resume_requirements = extracted_info.get("resume_requirements", {})
+
+            # Skip adding if all three fields are empty
+            if not required_roles and not role_requirements and not resume_requirements:
+                continue
+
             # Append the extracted information to the respective lists
-            required_roles.extend(extracted_info.get("required_roles", []))
-            role_requirements.append(extracted_info.get("role_requirements", {}))
-            resume_requirements.append(extracted_info.get("resume_requirements", {}))
+            all_required_roles.extend(required_roles)
+            all_role_requirements.append(role_requirements)
+            all_resume_requirements.append(resume_requirements)
 
-            # Print the extracted information for the page
-            print(f"RFP ID: {rfp_id} | Page Number: {page.page_number}")
-            print(f"Extracted Information:\n{json.dumps(extracted_info, indent=4)}\n")
+# Generate a UUID for the document
+rfp_id = str(uuid.uuid4())
 
-    # Create a JSON object with extracted information for the entire RFP
-    document_json = {
-        "rfp_id": rfp_id,
-        "blob_name": blob.name,
-        #"pages": pages_data,
-        "required_roles": required_roles,
-        "role_requirements": role_requirements,
-        "resume_requirements": resume_requirements
-    }
+# Create a JSON object with aggregated information for all blobs
+document_json = {
+    "rfp_id": rfp_id,
+    "blob_names": 'TODO'
+    "required_roles": all_required_roles,
+    "role_requirements": all_role_requirements,
+    "resume_requirements": all_resume_requirements
+}
 
-    # Convert JSON object to string
-    document_json_str = json.dumps(document_json, indent=4)
+# Convert JSON object to string
+document_json_str = json.dumps(document_json, indent=4)
 
-    # Define the path for the JSON output in the same folder
-    json_blob_name = rfp_id + "_extracted.json"
-    json_blob_client = container_client.get_blob_client(json_blob_name)
+# Define the path for the JSON output in the container
+json_blob_name = f"{folder_path}/{rfp_id}_extracted.json"
+json_blob_client = container_client.get_blob_client(json_blob_name)
 
-    # Upload the JSON string to Azure Blob Storage
-    json_blob_client.upload_blob(document_json_str, overwrite=True)
+# Upload the JSON string to Azure Blob Storage
+json_blob_client.upload_blob(document_json_str, overwrite=True)
 
-    print(f"Finished processing blob: {blob.name}")
-    print(f"JSON output uploaded to: {json_blob_name}\n")
+print(f"Finished processing all blobs.")
+print(f"JSON output uploaded to: {json_blob_name}\n")
