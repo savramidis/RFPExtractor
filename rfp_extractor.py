@@ -39,6 +39,7 @@ allowed_extensions = {'.docx', '.pdf'}
 all_required_roles = []
 all_role_requirements = []
 all_resume_requirements = []
+blob_names = []
 
 for blob in blob_list:
     # Check file extension
@@ -48,6 +49,7 @@ for blob in blob_list:
         continue
 
     print(f"Processing blob: {blob.name}")
+    blob_names.append(str(blob.name))
 
     # Create a BlobClient for the specific blob
     blob_client = container_client.get_blob_client(blob)
@@ -93,7 +95,7 @@ rfp_id = str(uuid.uuid4())
 # Create a JSON object with aggregated information for all blobs
 document_json = {
     "rfp_id": rfp_id,
-    "blob_names": "",
+    "blob_names": blob_names,
     "required_roles": all_required_roles,
     "role_requirements": all_role_requirements,
     "resume_requirements": all_resume_requirements
