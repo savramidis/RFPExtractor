@@ -75,7 +75,6 @@ for blob in blob_list:
         
         # Parse the extracted information and append to respective sections
         # Assuming extracted_info is structured in a specific format for simplicity
-        extracted_json = json.loads(extracted_info)
         required_roles.extend(extracted_json.get("required_roles", []))
         role_requirements.extend(extracted_json.get("role_requirements", []))
         resume_requirements.extend(extracted_json.get("resume_requirements", []))
