@@ -93,7 +93,7 @@ rfp_id = str(uuid.uuid4())
 # Create a JSON object with aggregated information for all blobs
 document_json = {
     "rfp_id": rfp_id,
-    "blob_names": 'TODO'
+    "blob_names": "",
     "required_roles": all_required_roles,
     "role_requirements": all_role_requirements,
     "resume_requirements": all_resume_requirements
