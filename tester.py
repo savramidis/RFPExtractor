@@ -1,82 +1,48 @@
-import os
-import json
+import datetime
 import uuid
-from azure.storage.blob import BlobServiceClient
-from azure.ai.formrecognizer import DocumentAnalysisClient
-from azure.core.credentials import AzureKeyCredential
+import asyncio
+import os
 from dotenv import load_dotenv
-from staffing_requirements_extractor import extract_information_from_page  # Import the function
+from cosmos_db_service import cosmos_db_service
 
-# Load environment variables from the .env file
+# Load environment variables from .env file
 load_dotenv()
 
-# Get environment variables
-connection_string = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
-container_name = os.getenv("AZURE_STORAGE_CONTAINER_NAME")
-form_recognizer_endpoint = os.getenv("AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT")
-form_recognizer_key = os.getenv("AZURE_DOCUMENT_INTELLIGENCE_KEY")
-folder_path = os.getenv("AZURE_STORAGE_FOLDER")
+# Retrieve environment variables
+endpoint = os.getenv('AZURE_COSMOS_ENDPOINT')
+key = os.getenv('AZURE_COSMOS_KEY')
+database_name = os.getenv('AZURE_DATABASE_NAME')
+container_name = os.getenv('AZURE_CONTAINER_NAME')
 
-# Initialize BlobServiceClient
-blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+# Define asynchronous test functions
+async def test_insert_rf_staffing_extract(cosmos_service):
+    # Example session object
 
-# Get a client to interact with the container
-container_client = blob_service_client.get_container_client(container_name)
-
-# Initialize DocumentAnalysisClient
-document_analysis_client = DocumentAnalysisClient(
-    endpoint=form_recognizer_endpoint,
-    credential=AzureKeyCredential(form_recognizer_key)
-)
-
-# List all blobs in the container
-blob_list = container_client.list_blobs(name_starts_with=folder_path)
-
-for blob in blob_list:
-    print(f"Processing blob: {blob.name}")
-    
-    # Create a BlobClient for the specific blob
-    blob_client = container_client.get_blob_client(blob)
-
-    # Download the blob's content
-    download_stream = blob_client.download_blob()
-    file_content = download_stream.readall()
-
-    # Analyze the file using Document Intelligence
-    poller = document_analysis_client.begin_analyze_document(
-        "prebuilt-layout",  # You can change this to other models like "prebuilt-invoice" or your custom model ID
-        file_content
-    )
-    result = poller.result()
-
-    # Generate a UUID and create the JSON object
     rfp_id = str(uuid.uuid4())
-
-    # Initialize a list to hold page data
-    pages_data = []
-
-    # Process the result and build JSON structure
-    for page in result.pages:
-        page_data = {
-            "page_number": page.page_number,
-            "lines": []
-        }
-        for line in page.lines:
-            page_data["lines"].append(line.content)
-        pages_data.append(page_data) 
+    currentDate = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
     document_json = {
         "rfp_id": rfp_id,
-        "blob_name": blob.name,
-        "pages": pages_data
+        "doc_type": "rfp_staffing_extract",
+        "extract_date": currentDate,
+        "blob_names": "",
+        "required_roles": "",
+        "role_requirements": "",
+        "resume_requirements": "",
     }
 
-    # Convert JSON object to string
-    document_json_str = json.dumps(document_json, indent=4)
+    # Insert session into Cosmos DB
+    result = await cosmos_service.insert_rfp_staffing_extract_async(document_json)
+    print("Insert Cosmos Result:", result)
 
- # Define the path for the JSON output in the same folder
-    json_blob_name = os.path.splitext(blob.name)[0] + "extract.json"
-    json_blob_client = container_client.get_blob_client(json_blob_name)
+# Main function to run tests
+async def main():
+    # Create an instance of the CosmosDbService
+    cosmos_service = cosmos_db_service(endpoint, key, database_name, container_name)
+    
+    # Run tests
+    await test_insert_rf_staffing_extract(cosmos_service)
 
-    # Upload the JSON string to Azure Blob Storage
-    json_blob_client.upload_blob(document_json_str, overwrite=True)
+# Run the main function
+if __name__ == "__main__":
+    asyncio.run(main())
