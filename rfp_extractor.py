@@ -38,7 +38,7 @@ allowed_extensions = {'.docx', '.pdf'}
 for blob in blob_list:
 
      # Check file extension
-    file_extension = os.path.splitext(blob.name)
+    _, file_extension = os.path.splitext(blob.name)  # Correctly access the file extension part of the tuple
     if file_extension.lower() not in allowed_extensions:
         print(f"Skipping blob: {blob.name} (unsupported file type)")
         continue
@@ -107,7 +107,7 @@ for blob in blob_list:
     document_json_str = json.dumps(document_json, indent=4)
 
     # Define the path for the JSON output in the same folder
-    json_blob_name = os.path.splitext(blob.name)[0] + "_extracted.json"
+    json_blob_name = rfp_id + "_extracted.json"
     json_blob_client = container_client.get_blob_client(json_blob_name)
 
     # Upload the JSON string to Azure Blob Storage
