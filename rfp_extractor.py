@@ -32,7 +32,17 @@ document_analysis_client = DocumentAnalysisClient(
 # List all blobs in the specified folder
 blob_list = container_client.list_blobs(name_starts_with=folder_path)
 
+# Allowed file extensions
+allowed_extensions = {'.docx', '.pdf'}
+
 for blob in blob_list:
+
+     # Check file extension
+    file_extension = os.path.splitext(blob.name)
+    if file_extension.lower() not in allowed_extensions:
+        print(f"Skipping blob: {blob.name} (unsupported file type)")
+        continue
+
     print(f"Processing blob: {blob.name}")
     
     # Create a BlobClient for the specific blob
@@ -73,21 +83,21 @@ for blob in blob_list:
         # Use OpenAI to extract Staffing Requirements from each page
         extracted_info = extract_information_from_page(page_text)
         
-        # Parse the extracted information and append to respective sections
-        # Assuming extracted_info is structured in a specific format for simplicity
-        required_roles.extend(extracted_json.get("required_roles", []))
-        role_requirements.extend(extracted_json.get("role_requirements", []))
-        resume_requirements.extend(extracted_json.get("resume_requirements", []))
+        if extracted_info:
+            # Append the extracted information to the respective lists
+            required_roles.extend(extracted_info.get("required_roles", []))
+            role_requirements.append(extracted_info.get("role_requirements", {}))
+            resume_requirements.append(extracted_info.get("resume_requirements", {}))
 
-        # Print the extracted information for the page
-        print(f"RFP ID: {rfp_id} | Page Number: {page.page_number}")
-        print(f"Extracted Information:\n{extracted_info}\n")
+            # Print the extracted information for the page
+            print(f"RFP ID: {rfp_id} | Page Number: {page.page_number}")
+            print(f"Extracted Information:\n{json.dumps(extracted_info, indent=4)}\n")
 
     # Create a JSON object with extracted information for the entire RFP
     document_json = {
         "rfp_id": rfp_id,
         "blob_name": blob.name,
-        "pages": pages_data,
+        #"pages": pages_data,
         "required_roles": required_roles,
         "role_requirements": role_requirements,
         "resume_requirements": resume_requirements
