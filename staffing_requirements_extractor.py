@@ -18,7 +18,7 @@ def extract_information_from_page(page_text):
         "api-key": api_key
     }
     
-    systemPrompt = "You are an AI Assistant. Your job is to take in as input data from a Request for Proposal and Extract the Staffing Requirements which can include Required Roles, Role Requirements, and Resume Requirements from the following text. Provide the output in JSON format with keys 'required_roles', 'role_requirements', and 'resume_requirements'."
+    systemPrompt = "You are an AI Assistant. Your job is to take in as input data from a Request for Proposal and Extract the Staffing Requirements which can include Required Roles, Role Requirements, and Resume Requirements from the following text. Provide the output in JSON format with keys 'required_roles', 'role_requirements', and 'resume_requirements'. Only return valid JSON."
     userPrompt = "Extract the Staffing Requirements from the following text"
 
     # Payload for the request
@@ -43,12 +43,15 @@ def extract_information_from_page(page_text):
         response_data = response.json()
         message_content = response_data['choices'][0]['message']['content'].strip()
         
+        # Find the JSON content in the response
         try:
-            #extracted_info = json.loads(message_content)
-            print(message_content)
-        except json.JSONDecodeError:
-            raise ValueError("The response content is not valid JSON")
+            json_content = message_content[message_content.index('{'):message_content.rindex('}') + 1]
+            extracted_info = json.loads(json_content)
+            #print(extracted_info)
+        except (json.JSONDecodeError, ValueError, IndexError) as e:
+            print("Error: The response content is not valid JSON")
+            return None
 
-        return message_content
+        return extracted_info
     else:
         response.raise_for_status()
