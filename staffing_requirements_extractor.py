@@ -22,44 +22,33 @@ def extract_information_from_page(page_text):
     userPrompt = "Extract the Staffing Requirements from the following text"
 
     # Payload for the request
-    payload = {
-    "messages": [
-        {
-        "role": "system",
-        "content": [
-            {
-            "type": "text",
-            "prompt": systemPrompt,
-            }
-        ]
-        },
-        {
-        "role": "user",
-        "content": [
-            {
-            "type": "text",
-            "content": f"{userPrompt}: {page_text}"
-            }
-        ]
-        }
-    ],
-    "temperature": 0.7,
-    "top_p": 0.95,
-    "max_tokens": 800
+    url = f"{api_endpoint}/openai/deployments/{deployment_name}/chat/completions?api-version=2023-05-15"
+    headers = {
+        "Content-Type": "application/json",
+        "api-key": api_key
     }
-    
-    jsonPayload = json.dumps(payload)
-    response = requests.post(url, headers=headers, data=jsonPayload)
-    
+
+    data = {
+        "messages": [
+            {"role": "system", "content": systemPrompt},
+            {"role": "user", "content": f"{userPrompt}:\n\n{page_text}"}
+        ],
+        "max_tokens": 1024,
+        "temperature": 0.5
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+       
     if response.status_code == 200:
         response_data = response.json()
         message_content = response_data['choices'][0]['message']['content'].strip()
         
         try:
-            extracted_info = json.loads(message_content)
+            #extracted_info = json.loads(message_content)
+            print(message_content)
         except json.JSONDecodeError:
             raise ValueError("The response content is not valid JSON")
 
-        return extracted_info
+        return message_content
     else:
         response.raise_for_status()
