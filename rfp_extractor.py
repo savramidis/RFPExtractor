@@ -120,12 +120,12 @@ for blob in blob_list:
         #print(current_page_text)
 
 # Generate a UUID for the document
-rfp_id = str(uuid.uuid4())
 currentDate = str(datetime.now(timezone.utc))
 
 # Create a JSON object with aggregated information for all blobs
 rfp_staffing_extract = {
-    "id": rfp_id,
+    "rfpid": str(uuid.uuid4()),
+    "id": str(uuid.uuid4()),
     "doc_type": "rfp_staffing_extract",
     "extract_date": currentDate,
     "processed:": False, # denotes whether a resume was processed from the extract
