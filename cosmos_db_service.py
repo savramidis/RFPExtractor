@@ -36,3 +36,16 @@ class cosmos_db_service:
         except exceptions.CosmosHttpResponseError as e:
             logging.error(f"Failed to upsert item: {e.message}")
             raise
+
+    def get_rfp_staffing_extract(self):
+        if self.container is None:
+            raise ValueError("The CosmosDbService has not been initialized. Call initialize() before using this method.")
+        try:
+            items = list(self.container.query_items(
+                query="SELECT * FROM c WHERE c.status = 'rfp_extracted'",
+                enable_cross_partition_query=True))
+            
+            return items
+        except exceptions.CosmosHttpResponseError as e:
+            logging.error(f"Failed to query items: {e.message}")
+            raise
