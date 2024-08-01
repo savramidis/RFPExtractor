@@ -36,3 +36,10 @@ API key
 
 ## How to Run
 Set all your environment variables
+
+pip install -r requirements.txt
+
+rfp_extractor.py reads from an Azure Blob Storage folder and uses Azure Document Intelligence to parse the RFP.
+
+staffing_requirements_extractor.py uses the extracted data and calls Azure Open AI to extract staffing requirements and then stores that output in Cosmos DB.
+
