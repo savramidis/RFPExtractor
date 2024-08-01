@@ -128,7 +128,7 @@ rfp_staffing_extract = {
     "id": str(uuid.uuid4()),
     "doc_type": "rfp_staffing_extract",
     "extract_date": currentDate,
-    "processed:": False, # denotes whether a resume was processed from the extract
+    "status:": "rfp_extracted",
     "blob_names": blob_names,
     "required_roles": all_required_roles,
     "role_requirements": all_role_requirements,
