@@ -1,18 +1,38 @@
-from azure.cosmos import exceptions
-from azure.cosmos.aio import CosmosClient
+import os
+import logging
+from azure.cosmos import exceptions, CosmosClient
+
+logging.basicConfig(level=logging.INFO)
 
 class cosmos_db_service:
-    def __init__(self, endpoint, key, database_name, container_name):
-        if not all([endpoint, key, database_name, container_name]):
-            raise ValueError("All parameters must be provided and non-empty.")
+    def __init__(self):
+        self.endpoint = os.getenv('AZURE_COSMOS_ENDPOINT')
+        self.key = os.getenv('AZURE_COSMOS_KEY')
+        self.database_name = os.getenv('AZURE_DATABASE_NAME')
+        self.container_name = os.getenv('AZURE_CONTAINER_NAME')
         
-        client = CosmosClient(endpoint, credential=key)
+        if not all([self.endpoint, self.key, self.database_name, self.container_name]):
+            raise ValueError("All environment variables must be provided and non-empty.")
+        
+        self.client = CosmosClient(self.endpoint, credential=self.key)
+        self.container = None  # Initialize the container attribute
+
+    def initialize(self):
         try:
-            database = client.get_database_client(database_name)
-            self.container = database.get_container_client(container_name)
+            database = self.client.get_database_client(self.database_name)
+            self.container = database.get_container_client(self.container_name)
         except exceptions.CosmosResourceNotFoundError:
             raise ValueError("Database or Container does not exist.")
+        except Exception as e:
+            logging.error(f"Failed to initialize Cosmos DB service: {e}")
+            raise
 
-    async def insert_rfp_staffing_extract_async(self, session):
-        created_item = await self.container.upsert_item(body=session)
-        return created_item
+    def insert_rfp_staffing_extract(self, rfp_staffing_extract):
+        if self.container is None:
+            raise ValueError("The CosmosDbService has not been initialized. Call initialize() before using this method.")
+        try:
+            created_item = self.container.upsert_item(body=rfp_staffing_extract)
+            return created_item
+        except exceptions.CosmosHttpResponseError as e:
+            logging.error(f"Failed to upsert item: {e.message}")
+            raise

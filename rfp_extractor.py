@@ -7,6 +7,7 @@ from azure.core.credentials import AzureKeyCredential
 from dotenv import load_dotenv
 from staffing_requirements_extractor import extract_information_from_page
 from cosmos_db_service import cosmos_db_service
+from datetime import datetime, timezone
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -120,26 +121,33 @@ for blob in blob_list:
 
 # Generate a UUID for the document
 rfp_id = str(uuid.uuid4())
+currentDate = str(datetime.now(timezone.utc))
 
 # Create a JSON object with aggregated information for all blobs
-document_json = {
-    "rfp_id": rfp_id,
+rfp_staffing_extract = {
+    "id": rfp_id,
     "doc_type": "rfp_staffing_extract",
+    "extract_date": currentDate,
     "blob_names": blob_names,
     "required_roles": all_required_roles,
     "role_requirements": all_role_requirements,
     "resume_requirements": all_resume_requirements
 }
 
+cosmos_db_service = cosmos_db_service()
+cosmos_db_service.initialize()
+
+created_item = cosmos_db_service.insert_rfp_staffing_extract(rfp_staffing_extract)
+print(created_item)
 # Convert JSON object to string
-document_json_str = json.dumps(document_json, indent=4)
+#document_json_str = json.dumps(document_json, indent=4)
 
 # Define the path for the JSON output in the container
-json_blob_name = f"{folder_path}/{rfp_id}_rfp_staffing_extract.json"
-json_blob_client = container_client.get_blob_client(json_blob_name)
+#json_blob_name = f"{folder_path}/{rfp_id}_rfp_staffing_extract.json"
+#json_blob_client = container_client.get_blob_client(json_blob_name)
 
 # Upload the JSON string to Azure Blob Storage
-json_blob_client.upload_blob(document_json_str, overwrite=True)
+#json_blob_client.upload_blob(document_json_str, overwrite=True)
 
 print(f"Finished processing all blobs.")
-print(f"JSON output uploaded to: {json_blob_name}\n")
+#print(f"JSON output uploaded to: {json_blob_name}\n")
