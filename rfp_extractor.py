@@ -128,6 +128,7 @@ rfp_staffing_extract = {
     "id": rfp_id,
     "doc_type": "rfp_staffing_extract",
     "extract_date": currentDate,
+    "processed:": False, # denotes whether a resume was processed from the extract
     "blob_names": blob_names,
     "required_roles": all_required_roles,
     "role_requirements": all_role_requirements,
