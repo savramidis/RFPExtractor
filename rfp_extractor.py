@@ -42,7 +42,7 @@ allowed_extensions = {'.docx', '.pdf'}
 #all_role_requirements = []
 #all_resume_requirements = []
 blob_names = []
-extracted__role_requirements_json_list = []
+extracted_role_requirements_json_list = []
 
 # Initialize sets to track duplicates
 required_roles_set = set()
@@ -99,14 +99,14 @@ for blob in blob_list:
                 role_added = False
 
                 # determine if the role extracted from the LLM was not already added
-                for processed_requirement_role in extracted__role_requirements_json_list:
+                for processed_requirement_role in extracted_role_requirements_json_list:
                     if processed_requirement_role.get("required_role") == role:
                         role_added = True
                         break
                         
                 # if the role wasn't already added, add it to the master list
                 if (not role_added):
-                    extracted__role_requirements_json_list.append(role_node)
+                    extracted_role_requirements_json_list.append(role_node)
 
          # Update previous_page_text. We need to do this to ensure that we don't miss any information that spans multiple pages
         previous_page_text = current_page_text 
@@ -125,7 +125,7 @@ rfp_staffing_extract = {
     #"required_roles": all_required_roles,
     #"role_requirements": all_role_requirements,
     #"resume_requirements": all_resume_requirements
-    "extracted_requirements": extracted_requirements_json_list
+    "extracted_requirements": extracted_role_requirements_json_list
 }
 
 cosmos_db_service = cosmos_db_service()
