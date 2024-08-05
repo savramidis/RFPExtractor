@@ -1,3 +1,4 @@
+import time
 import os
 import json
 import uuid
@@ -8,6 +9,7 @@ from dotenv import load_dotenv
 from staffing_requirements_extractor import extract_information_from_page
 from cosmos_db_service import cosmos_db_service
 from datetime import datetime, timezone
+from requests.exceptions import HTTPError
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -38,9 +40,6 @@ blob_list = container_client.list_blobs(name_starts_with=folder_path)
 allowed_extensions = {'.docx', '.pdf'}
 
 # Initialize a list to hold all extracted information
-#all_required_roles = []
-#all_role_requirements = []
-#all_resume_requirements = []
 blob_names = []
 extracted_role_requirements_json_list = []
 
@@ -54,6 +53,25 @@ def extract_text_for_page(page):
     for line in page.lines:
         text += line.content + "\n"
     return text
+
+def analyze_document_with_retry(document_analysis_client, file_content, retries=5):
+    attempt = 0
+    while attempt < retries:
+        try:
+            poller = document_analysis_client.begin_analyze_document(
+                "prebuilt-layout",  # You can change this to other models like "prebuilt-invoice" or your custom model ID
+                file_content
+            )
+            result = poller.result()
+            return result
+        except HTTPError as e:
+            if e.response.status_code == 429:
+                attempt += 1
+                wait_time = 2 ** attempt  # Exponential backoff
+                print(f"Rate limit exceeded. Retrying in {wait_time} seconds...")
+                time.sleep(wait_time)
+            else:
+                raise
 
 for blob in blob_list:
     # Check file extension
@@ -72,13 +90,8 @@ for blob in blob_list:
     download_stream = blob_client.download_blob()
     file_content = download_stream.readall()
 
-    # Analyze the file using Document Intelligence
-    poller = document_analysis_client.begin_analyze_document(
-        "prebuilt-layout",  # You can change this to other models like "prebuilt-invoice" or your custom model ID
-        file_content
-    )
-
-    result = poller.result()
+    # Analyze the file using Document Intelligence with retry
+    result = analyze_document_with_retry(document_analysis_client, file_content)
 
     # Process the result and extract information from each page
     previous_page_text = ""
@@ -90,26 +103,24 @@ for blob in blob_list:
         extracted_info = extract_information_from_page(combined_text)
 
         if extracted_info:
-
             # loop through all extracted role requirements and add them to the master json list
             for role_node in extracted_info:
+                if isinstance(role_node, dict):  # Ensure role_node is a dictionary
+                    role = role_node.get("required_role")
+                    role_added = False
 
-                role = role_node.get("required_role")
+                    # determine if the role extracted from the LLM was not already added
+                    for processed_requirement_role in extracted_role_requirements_json_list:
+                        if processed_requirement_role.get("required_role") == role:
+                            role_added = True
+                            break
 
-                role_added = False
+                    # if the role wasn't already added, add it to the master list
+                    if not role_added:
+                        extracted_role_requirements_json_list.append(role_node)
 
-                # determine if the role extracted from the LLM was not already added
-                for processed_requirement_role in extracted_role_requirements_json_list:
-                    if processed_requirement_role.get("required_role") == role:
-                        role_added = True
-                        break
-                        
-                # if the role wasn't already added, add it to the master list
-                if (not role_added):
-                    extracted_role_requirements_json_list.append(role_node)
-
-         # Update previous_page_text. We need to do this to ensure that we don't miss any information that spans multiple pages
-        previous_page_text = current_page_text 
+        # Update previous_page_text. We need to do this to ensure that we don't miss any information that spans multiple pages
+        previous_page_text = current_page_text
 
 # Generate a UUID for the document
 currentDate = str(datetime.now(timezone.utc))
@@ -122,9 +133,6 @@ rfp_staffing_extract = {
     "extract_date": currentDate,
     "status:": "rfp_extracted",
     "blob_names": blob_names,
-    #"required_roles": all_required_roles,
-    #"role_requirements": all_role_requirements,
-    #"resume_requirements": all_resume_requirements
     "extracted_requirements": extracted_role_requirements_json_list
 }
 
@@ -133,15 +141,5 @@ cosmos_db_service.initialize()
 
 created_item = cosmos_db_service.insert_rfp_staffing_extract(rfp_staffing_extract)
 print(created_item)
-# Convert JSON object to string
-#document_json_str = json.dumps(document_json, indent=4)
-
-# Define the path for the JSON output in the container
-#json_blob_name = f"{folder_path}/{rfp_id}_rfp_staffing_extract.json"
-#json_blob_client = container_client.get_blob_client(json_blob_name)
-
-# Upload the JSON string to Azure Blob Storage
-#json_blob_client.upload_blob(document_json_str, overwrite=True)
 
 print(f"Finished processing all blobs.")
-#print(f"JSON output uploaded to: {json_blob_name}\n")
