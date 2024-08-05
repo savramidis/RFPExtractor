@@ -38,10 +38,11 @@ blob_list = container_client.list_blobs(name_starts_with=folder_path)
 allowed_extensions = {'.docx', '.pdf'}
 
 # Initialize a list to hold all extracted information
-all_required_roles = []
-all_role_requirements = []
-all_resume_requirements = []
+#all_required_roles = []
+#all_role_requirements = []
+#all_resume_requirements = []
 blob_names = []
+extracted__role_requirements_json_list = []
 
 # Initialize sets to track duplicates
 required_roles_set = set()
@@ -89,35 +90,26 @@ for blob in blob_list:
         extracted_info = extract_information_from_page(combined_text)
 
         if extracted_info:
-            required_roles = extracted_info.get("required_roles", [])
-            role_requirements = extracted_info.get("role_requirements", {})
-            resume_requirements = extracted_info.get("resume_requirements", {})
 
-            # Skip adding if all three fields are empty
-            if not required_roles and not role_requirements and not resume_requirements:
-                previous_page_text = current_page_text  # Update previous_page_text
-                continue
+            # loop through all extracted role requirements and add them to the master json list
+            for role_node in extracted_info:
 
-            # Append the extracted information to the respective lists, avoiding duplicates
-            for role in required_roles:
-                if role not in required_roles_set:
-                    all_required_roles.append(role)
-                    required_roles_set.add(role)
+                role = role_node.get("required_role")
 
-            role_requirements_json = json.dumps(role_requirements)
-            if role_requirements_json not in role_requirements_set:
-                all_role_requirements.append(role_requirements)
-                role_requirements_set.add(role_requirements_json)
+                role_added = False
 
-            resume_requirements_json = json.dumps(resume_requirements)
-            if resume_requirements_json not in resume_requirements_set:
-                all_resume_requirements.append(resume_requirements)
-                resume_requirements_set.add(resume_requirements_json)
+                # determine if the role extracted from the LLM was not already added
+                for processed_requirement_role in extracted__role_requirements_json_list:
+                    if processed_requirement_role.get("required_role") == role:
+                        role_added = True
+                        break
+                        
+                # if the role wasn't already added, add it to the master list
+                if (not role_added):
+                    extracted__role_requirements_json_list.append(role_node)
 
          # Update previous_page_text. We need to do this to ensure that we don't miss any information that spans multiple pages
         previous_page_text = current_page_text 
-        #print(previous_page_text)
-        #print(current_page_text)
 
 # Generate a UUID for the document
 rfp_id = str(uuid.uuid4())
@@ -130,9 +122,10 @@ rfp_staffing_extract = {
     "extract_date": currentDate,
     "processed:": False, # denotes whether a resume was processed from the extract
     "blob_names": blob_names,
-    "required_roles": all_required_roles,
-    "role_requirements": all_role_requirements,
-    "resume_requirements": all_resume_requirements
+    #"required_roles": all_required_roles,
+    #"role_requirements": all_role_requirements,
+    #"resume_requirements": all_resume_requirements
+    "extracted_requirements": extracted_requirements_json_list
 }
 
 cosmos_db_service = cosmos_db_service()
