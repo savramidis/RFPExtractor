@@ -8,8 +8,8 @@ class cosmos_db_service:
     def __init__(self):
         self.endpoint = os.getenv('AZURE_COSMOS_ENDPOINT')
         self.key = os.getenv('AZURE_COSMOS_KEY')
-        self.database_name = os.getenv('AZURE_DATABASE_NAME')
-        self.container_name = os.getenv('AZURE_CONTAINER_NAME')
+        self.database_name = os.getenv('AZURE_COSMOS_DATABASE_NAME')
+        self.container_name = os.getenv('AZURE_COSMOS_CONTAINER_NAME')
         
         if not all([self.endpoint, self.key, self.database_name, self.container_name]):
             raise ValueError("All environment variables must be provided and non-empty.")
