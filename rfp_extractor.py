@@ -93,34 +93,37 @@ for blob in blob_list:
     # Analyze the file using Document Intelligence with retry
     result = analyze_document_with_retry(document_analysis_client, file_content)
 
+    extracted_role_requirements_json_list = extract_information_from_page(result.content)
+
+    # The following code is commented out as it is only used if we are chunking the RFP document
     # Process the result and extract information from each page
-    previous_page_text = ""
-    for i, page in enumerate(result.pages):
-        current_page_text = extract_text_for_page(page)
-        combined_text = previous_page_text + current_page_text
+    # previous_page_text = ""
+    # for i, page in enumerate(result.pages):
+    #     current_page_text = extract_text_for_page(page)
+    #     combined_text = previous_page_text + current_page_text
 
-        # Use OpenAI to extract Staffing Requirements from combined text of the current and previous page
-        extracted_info = extract_information_from_page(combined_text)
+    #     # Use OpenAI to extract Staffing Requirements from combined text of the current and previous page
+    #     extracted_info = extract_information_from_page(combined_text)
 
-        if extracted_info:
-            # loop through all extracted role requirements and add them to the master json list
-            for role_node in extracted_info:
-                if isinstance(role_node, dict):  # Ensure role_node is a dictionary
-                    role = role_node.get("required_role")
-                    role_added = False
+    #     if extracted_info:
+    #         # loop through all extracted role requirements and add them to the master json list
+    #         for role_node in extracted_info:
+    #             if isinstance(role_node, dict):  # Ensure role_node is a dictionary
+    #                 role = role_node.get("required_role")
+    #                 role_added = False
 
-                    # determine if the role extracted from the LLM was not already added
-                    for processed_requirement_role in extracted_role_requirements_json_list:
-                        if processed_requirement_role.get("required_role") == role:
-                            role_added = True
-                            break
+    #                 # determine if the role extracted from the LLM was not already added
+    #                 for processed_requirement_role in extracted_role_requirements_json_list:
+    #                     if processed_requirement_role.get("required_role") == role:
+    #                         role_added = True
+    #                         break
 
-                    # if the role wasn't already added, add it to the master list
-                    if not role_added:
-                        extracted_role_requirements_json_list.append(role_node)
+    #                 # if the role wasn't already added, add it to the master list
+    #                 if not role_added:
+    #                     extracted_role_requirements_json_list.append(role_node)
 
-        # Update previous_page_text. We need to do this to ensure that we don't miss any information that spans multiple pages
-        previous_page_text = current_page_text
+    #     # Update previous_page_text. We need to do this to ensure that we don't miss any information that spans multiple pages
+    #     previous_page_text = current_page_text
 
 # Generate a UUID for the document
 currentDate = str(datetime.now(timezone.utc))

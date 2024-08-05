@@ -53,37 +53,64 @@ def extract_information_from_page(page_text):
         "api-key": api_key
     }
 
+    # this prompt is used if chunking is required on the RFP document we are extracting requiremnts from
+    # data_old = {
+    #     "messages": [
+    #         {
+    #             "role": "system",
+    #             "content": f"""You are a Request for Proposal Requirements Extractor expert. Your job is to take in as input a section from a Request for Proposal
+    #              and Extract the Staffing Requirements which can include Required Roles, Role Requirements, and Resume Requirements from the following text.
+    #              The Required Roles will be the title of the roles specified, such as Research Scientist, Program Manager, Software Engineer, etc.
+    #              The Role Requirements will be the education, required experience, desired experience, and clearance information.
+    #              The Resume Requirements will be the formatting requirements of the resume and how it should appear, which may or may not be in the supplied Request
+    #              for proposal.
+    #              You must determine if a required role is completely specified in the section you receive. If ALL of the following sections are below the role title,
+    #              this will signify that you have all requirements of a role: 'Education', 'Experience', 'Desired', and 'Clearance'. You must only process completed
+    #              roles and ignore any roles which do not have all requirements given.
+    #              Always check the parent/child relationship of the roles so that the full role title is specified. You must always combine these two. If Example:
+    #              1. Engineer
+    #                1.1 Senior
+    #              Always check if a role is described as Key Personnel and include that in the role title.
+    #              This example would result in a role titled: Senior Engineer. You must never return just Engineer.
+    #              Always and only return as your output the extracted staffing requirements in the format ```{json_form}```.
+    #              Provide back the response as JSON and always and only return back JSON following the format specified. Verfiy the JSON is valid and encapsulates fully
+    #              described roles.
+    #             """
+    #         },
+    #         {
+    #             "role": "user",
+    #             "content": f"Extract the Staffing Requirements from the following section of the Request for Proposal: {page_text}"
+    #         }
+    #     ],
+    #     "max_tokens": 4000,
+    #     "seed": 42
+    # }
+
+    # this prompt is used for sending in a single RFP document without the need to chunk
     data = {
         "messages": [
             {
                 "role": "system",
-                "content": f"""You are a Request for Proposal Requirements Extractor expert. Your job is to take in as input a section from a Request for Proposal
-                 and Extract the Staffing Requirements which can include Required Roles, Role Requirements, and Resume Requirements from the following text.
-                 The Required Roles will be the title of the roles specified, such as Research Scientist, Program Manager, Software Engineer, etc.
-                 The Role Requirements will be the education, required experience, desired experience, and clearance information.
-                 The Resume Requirements will be the formatting requirements of the resume and how it should appear, which may or may not be in the supplied Request
-                 for proposal.
-                 You must determine if a required role is completely specified in the section you receive. If ALL of the following sections are below the role title,
-                 this will signify that you have all requirements of a role: 'Education', 'Experience', 'Desired', and 'Clearance'. You must only process completed
-                 roles and ignore any roles which do not have all requirements given.
+                "content": f"""You are a Request for Proposal Requirements Extractor expert. Your job is to take in as input a a Request for Proposal
+                 and Extract the Staffing Requirements
                  Always check the parent/child relationship of the roles so that the full role title is specified. You must always combine these two. If Example:
                  1. Engineer
                    1.1 Senior
-                 Always check if a role is described as Key Personnel and include that in the role title.
                  This example would result in a role titled: Senior Engineer. You must never return just Engineer.
+                 If a role is described as Key Personnel, you must add this in parentheses to the role title.
                  Always and only return as your output the extracted staffing requirements in the format ```{json_form}```.
-                 Provide back the response as JSON and always and only return back JSON following the format specified. Verfiy the JSON is valid and encapsulates fully
-                 described roles.
+                 Provide back the response as JSON and always and only return back JSON following the format specified. Verfiy the JSON is valid.
                 """
             },
             {
                 "role": "user",
-                "content": f"Extract the Staffing Requirements from the following section of the Request for Proposal: {page_text}"
+                "content": f"""Analyze the following job requirements and list key skills, qualifications, and experiences:\n\n{page_text}"""
             }
         ],
         "max_tokens": 4000,
         "seed": 42
     }
+
 
     response = requests.post(url, headers=headers, json=data)
        
