@@ -29,7 +29,7 @@ def extract_staffing_requirements(documents: List[Dict]) -> Dict[str, List[Dict]
 
 grouped_data = cosmos_db_service.get_grouped_rfp_staffing_extract()
 for rfp_id, documents in grouped_data.items():
-        role_requirements = extract_staffing_requirements(documents)
-        for role, requirements in role_requirements.items():
-            sanitized_role = role.replace(" ", "_")
-            print(f"Role: {sanitized_role}")
+    role_requirements = extract_staffing_requirements(documents)
+    for role, requirements in role_requirements.items():
+        sanitized_role = role.replace(" ", "_")
+        print(f"Role: {sanitized_role}")
