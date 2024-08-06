@@ -37,7 +37,7 @@ class cosmos_db_service:
             logging.error(f"Failed to upsert item: {e.message}")
             raise
 
-    def get_rfp_staffing_extract(self):
+    def get_grouped_rfp_staffing_extract(self):
         if self.container is None:
             raise ValueError("The CosmosDbService has not been initialized. Call initialize() before using this method.")
         try:
@@ -45,7 +45,14 @@ class cosmos_db_service:
                 query="SELECT * FROM c WHERE c.status = 'rfp_extracted'",
                 enable_cross_partition_query=True))
             
-            return items
+            grouped_data = {}
+            for item in items:
+                rfp_id = item['rfp_id']
+                if rfp_id not in grouped_data:
+                    grouped_data[rfp_id] = []
+                grouped_data[rfp_id].append(item)
+    
+            return grouped_data
         except exceptions.CosmosHttpResponseError as e:
             logging.error(f"Failed to query items: {e.message}")
             raise
