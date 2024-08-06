@@ -33,6 +33,9 @@ document_analysis_client = DocumentAnalysisClient(
     credential=AzureKeyCredential(form_recognizer_key)
 )
 
+cosmos_db_service = cosmos_db_service()
+cosmos_db_service.initialize()
+
 # List all blobs in the specified folder
 blob_list = container_client.list_blobs(name_starts_with=folder_path)
 
@@ -54,14 +57,6 @@ rfp_id = str(uuid.uuid4())
 #    for line in page.lines:
 #        text += line.content + "\n"
 #    return text
-
-def clean_json_string(json_str):
-    # Load the JSON string into a Python object
-    json_obj = json.loads(json_str)
-
-    # Convert the Python object back to a formatted JSON string
-    cleaned_json_str = json.dumps(json_obj, separators=(',', ':'))
-    return cleaned_json_str
 
 def analyze_document_with_retry(document_analysis_client, file_content, retries=5):
     attempt = 0
@@ -127,9 +122,6 @@ for blob in blob_list:
             "blob_name": str(blob.name),
             "rfp_staffing_requirements": extracted_info
         }
-
-        cosmos_db_service = cosmos_db_service()
-        cosmos_db_service.initialize()
 
         created_item = cosmos_db_service.insert_rfp_staffing_extract(single_document)
         print(created_item)
