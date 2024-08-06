@@ -97,8 +97,9 @@ def extract_information_from_page(page_text):
                  1. Engineer
                    1.1 Senior
                  This example would result in a role titled: Senior Engineer. You must never return just Engineer.      
-                 Always and only return in the following JSON format {json_form}.
-                 Ensure the JSON is properly formatted without any extra characters or malformed structures.
+                 Always and only return JSON in the following format {json_form}.
+                 Ensure the JSON is properly formatted, does not contain any extra characters, 
+                 does not contain any malformed structures, and is properly encapsulated.
                 """
             },
             {
