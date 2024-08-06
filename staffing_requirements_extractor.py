@@ -86,21 +86,22 @@ def extract_information_from_page(page_text):
     #     "seed": 42
     # }
 
+    
     # this prompt is used for sending in a single RFP document without the need to chunk
     data = {
         "messages": [
             {
                 "role": "system",
                 "content": f"""You are a Request for Proposal Requirements Extractor expert. Your job is to take in as input a a Request for Proposal
-                 and Extract the Staffing Requirements
-                 Always check the parent child relationship of the roles so that the full role title is specified. You must always combine these two. If Example:
-                 1. Engineer
-                   1.1 Senior
-                 This example would result in a role titled: Senior Engineer. You must never return just Engineer.      
-                 Always and only return JSON in the following format {json_form}.
-                 Ensure the JSON is properly formatted, does not contain any extra characters, 
-                 does not contain any malformed structures, and is properly encapsulated.
-                """
+                    and Extract the Staffing Requirements. You must only extract data that exists in the RFP, do not make anything up.
+                    Always check the parent child relationship of the roles so that the full role title is specified. You must always combine these two. If Example:
+                    1. Engineer
+                    1.1 Senior
+                    This example would result in a role titled: Senior Engineer. You must never return just Engineer.  
+                    Always check if the role is labeled as Key Personnel and add that to the title in parentheses.
+                    Always and only return JSON in the following format ```{json_form}```.
+                    Ensure the JSON is properly formatted and does not contain any extra characters, malformed structures, and is properly encapsulated.
+                    """
             },
             {
                 "role": "user",
@@ -111,29 +112,50 @@ def extract_information_from_page(page_text):
         "seed": 42
     }
 
-    response = requests.post(url, headers=headers, json=data)
-       
-    if response.status_code == 200:
-        response_data = response.json()
-        message_content = response_data['choices'][0]['message']['content'].strip()
+    retry_count = 0
+
+    while (retry_count < 3):
+
+        # if we are retrying, send back in the json_data for the LLM to retry the format
+        if (retry_count > 0):
+            data = {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": f"""The JSON you returned could not be sent into json.loads. Please take the following data and fix it: {json_data}"""
+                    }
+                ],
+                "max_tokens": 4000,
+                "seed": 42
+            } 
+
+        response = requests.post(url, headers=headers, json=data)
         
-        # Find the JSON content in the response
-        try:
-            message_content = str(message_content).split("```")[1]
+        if response.status_code == 200:
+            response_data = response.json()
+            message_content = response_data['choices'][0]['message']['content'].strip()
+            
+            # Find the JSON content in the response
+            try:
+                message_content = str(message_content).split("```")[1]
 
-            if message_content.startswith('json'):
-                # Remove the first occurrence of 'json' from the response text
-                message_content = message_content[4:]
+                if message_content.startswith('json'):
+                    # Remove the first occurrence of 'json' from the response text
+                    message_content = message_content[4:]
 
-            cleaned_json = message_content.replace('\n', '').replace('\\n', '').replace('\\', '').strip('"')
+                cleaned_json = message_content.replace('\n', '').replace('\\n', '').replace('\\', '').strip('"')
 
-            json_data = json.loads(cleaned_json)
-            cleaned_json = json.dumps(json_data, indent=4)
-            print(cleaned_json)
-        except (json.JSONDecodeError, ValueError, IndexError) as e:
-            print("Error: The response content is not valid JSON")
-            return None
+                json_data = json.loads(cleaned_json)
 
-        return json_data
-    else:
-        response.raise_for_status()
+                #cleaned_json = json.dumps(json_data, indent=4)
+                #print(cleaned_json)
+
+                return json_data
+            except (json.JSONDecodeError, ValueError, IndexError) as e:
+                print("Error: The response content is not valid JSON")
+                retry_count = retry_count + 1
+
+        else:
+            response.raise_for_status()
+    
+    print("Retry count exceeded!")
