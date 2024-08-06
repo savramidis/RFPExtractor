@@ -47,12 +47,21 @@ extracted_role_requirements_json_list = []
 required_roles_set = set()
 role_requirements_set = set()
 resume_requirements_set = set()
+rfp_id = str(uuid.uuid4())
 
-def extract_text_for_page(page):
-    text = ""
-    for line in page.lines:
-        text += line.content + "\n"
-    return text
+# def extract_text_for_page(page):
+#    text = ""
+#    for line in page.lines:
+#        text += line.content + "\n"
+#    return text
+
+def clean_json_string(json_str):
+    # Load the JSON string into a Python object
+    json_obj = json.loads(json_str)
+
+    # Convert the Python object back to a formatted JSON string
+    cleaned_json_str = json.dumps(json_obj, separators=(',', ':'))
+    return cleaned_json_str
 
 def analyze_document_with_retry(document_analysis_client, file_content, retries=5):
     attempt = 0
@@ -93,7 +102,7 @@ for blob in blob_list:
     # Analyze the file using Document Intelligence with retry
     result = analyze_document_with_retry(document_analysis_client, file_content)
 
-    extracted_role_requirements_json_list = extract_information_from_page(result.content)
+    extracted_info = extract_information_from_page(result.content)
 
     # The following code is commented out as it is only used if we are chunking the RFP document
     # Process the result and extract information from each page
@@ -102,47 +111,30 @@ for blob in blob_list:
     #     current_page_text = extract_text_for_page(page)
     #     combined_text = previous_page_text + current_page_text
 
-    #     # Use OpenAI to extract Staffing Requirements from combined text of the current and previous page
+    #     Use OpenAI to extract Staffing Requirements from combined text of the current and previous page
     #     extracted_info = extract_information_from_page(combined_text)
 
-    #     if extracted_info:
-    #         # loop through all extracted role requirements and add them to the master json list
-    #         for role_node in extracted_info:
-    #             if isinstance(role_node, dict):  # Ensure role_node is a dictionary
-    #                 role = role_node.get("required_role")
-    #                 role_added = False
+    if extracted_info:
+        currentDate = str(datetime.now(timezone.utc))
 
-    #                 # determine if the role extracted from the LLM was not already added
-    #                 for processed_requirement_role in extracted_role_requirements_json_list:
-    #                     if processed_requirement_role.get("required_role") == role:
-    #                         role_added = True
-    #                         break
+        # Wrap the list into a single document
+        single_document = {
+            "id": str(uuid.uuid4()),  # Generate a unique ID for the document
+            "rfp_id": rfp_id,
+            "doc_type": "rfp_staffing_extract",
+            "extract_date": currentDate,
+            "status": "rfp_extracted",
+            "blob_name": str(blob.name),
+            "rfp_staffing_requirements": extracted_info
+        }
 
-    #                 # if the role wasn't already added, add it to the master list
-    #                 if not role_added:
-    #                     extracted_role_requirements_json_list.append(role_node)
+        cosmos_db_service = cosmos_db_service()
+        cosmos_db_service.initialize()
 
-    #     # Update previous_page_text. We need to do this to ensure that we don't miss any information that spans multiple pages
+        created_item = cosmos_db_service.insert_rfp_staffing_extract(single_document)
+        print(created_item)
+
+    #     Update previous_page_text. We need to do this to ensure that we don't miss any information that spans multiple pages
     #     previous_page_text = current_page_text
-
-# Generate a UUID for the document
-currentDate = str(datetime.now(timezone.utc))
-
-# Create a JSON object with aggregated information for all blobs
-rfp_staffing_extract = {
-    "rfpid": str(uuid.uuid4()),
-    "id": str(uuid.uuid4()),
-    "doc_type": "rfp_staffing_extract",
-    "extract_date": currentDate,
-    "status:": "rfp_extracted",
-    "blob_names": blob_names,
-    "extracted_requirements": extracted_role_requirements_json_list
-}
-
-cosmos_db_service = cosmos_db_service()
-cosmos_db_service.initialize()
-
-created_item = cosmos_db_service.insert_rfp_staffing_extract(rfp_staffing_extract)
-print(created_item)
 
 print(f"Finished processing all blobs.")

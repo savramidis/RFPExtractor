@@ -93,13 +93,12 @@ def extract_information_from_page(page_text):
                 "role": "system",
                 "content": f"""You are a Request for Proposal Requirements Extractor expert. Your job is to take in as input a a Request for Proposal
                  and Extract the Staffing Requirements
-                 Always check the parent/child relationship of the roles so that the full role title is specified. You must always combine these two. If Example:
+                 Always check the parent child relationship of the roles so that the full role title is specified. You must always combine these two. If Example:
                  1. Engineer
                    1.1 Senior
-                 This example would result in a role titled: Senior Engineer. You must never return just Engineer.
-                 If a role is described as Key Personnel, you must add this in parentheses to the role title.
-                 Always and only return as your output the extracted staffing requirements in the format ```{json_form}```.
-                 Provide back the response as JSON and always and only return back JSON following the format specified. Verfiy the JSON is valid.
+                 This example would result in a role titled: Senior Engineer. You must never return just Engineer.      
+                 Always and only return in the following JSON format {json_form}.
+                 Ensure the JSON is properly formatted without any extra characters or malformed structures.
                 """
             },
             {
@@ -111,7 +110,6 @@ def extract_information_from_page(page_text):
         "seed": 42
     }
 
-
     response = requests.post(url, headers=headers, json=data)
        
     if response.status_code == 200:
@@ -121,20 +119,20 @@ def extract_information_from_page(page_text):
         # Find the JSON content in the response
         try:
             message_content = str(message_content).split("```")[1]
+
             if message_content.startswith('json'):
                 # Remove the first occurrence of 'json' from the response text
                 message_content = message_content[4:]
 
-            # strip out any extra characters returned from the LLM
-            json_content = message_content.replace("\\'", "'").replace('[\'', '[').replace('\']', ']').replace("', '", ", ")
-            
-            # Parse the JSON content
-            extracted_info = json.loads(json_content)
+            cleaned_json = message_content.replace('\n', '').replace('\\n', '').replace('\\', '').strip('"')
 
+            json_data = json.loads(cleaned_json)
+            cleaned_json = json.dumps(json_data, indent=4)
+            print(cleaned_json)
         except (json.JSONDecodeError, ValueError, IndexError) as e:
             print("Error: The response content is not valid JSON")
             return None
 
-        return extracted_info
+        return json_data
     else:
         response.raise_for_status()
