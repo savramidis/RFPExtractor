@@ -1,8 +1,8 @@
 import os
 import requests
 import json
+from openai import AzureOpenAI
 from dotenv import load_dotenv
-import re
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -46,16 +46,82 @@ def extract_information_from_page(page_text):
         ]
     })])
 
-    # Payload for the request
-    url = f"{api_endpoint}/openai/deployments/{deployment_name}/chat/completions?api-version=2024-02-15-preview"
-    headers = {
-        "Content-Type": "application/json",
-        "api-key": api_key
-    }
+    client = AzureOpenAI(
+        api_key=api_key,
+        # per comment below, when the 2024-08-06 API is available, we'll switch to that to use structured output
+        api_version="2024-02-15-preview",
+        azure_endpoint=api_endpoint
+    )
+
+
+    # The below code utilizes structured output (https://openai.com/index/introducing-structured-outputs-in-the-api/). This is not yet available in Azure, so when it is,
+    # we can uncomment and test. This should ensure that we always get JSON back and we can avoid retry logic.
+    # response = client.chat.completions.create(
+    #     model=deployment_name,
+    #     #deployment_name=deployment_name,
+    #     messages=[
+    #         {
+    #             "role": "system",
+    #             "content": f"""You are a Request for Proposal Requirements Extractor expert. Your job is to take in as input a a Request for Proposal
+    #                 and Extract the Staffing Requirements. You must only extract data that exists in the RFP, do not make anything up.
+    #                 Always check the parent child relationship of the roles so that the full role title is specified. You must always combine these two. If Example:
+    #                 1. Engineer
+    #                 1.1 Senior
+    #                 This example would result in a role titled: Senior Engineer. You must never return just Engineer.  
+    #                 Always check if the role is labeled as Key Personnel and add that to the title in parentheses.
+    #                 """
+    #         },
+    #         {
+    #             "role": "user",
+    #             "content": f"""Analyze the following job requirements and list key skills, qualifications, and experiences:\n\n{page_text}"""
+    #         }
+    #     ],
+    #     response_format={
+    #         "type": "json_schema",
+    #         "json_schema": {
+    #             "name": "job_requirements",
+    #             "schema": {
+    #                 "type": "array",
+    #                 "items": {
+    #                     "type": "object",
+    #                     "properties": {
+    #                         "required_role": {"type": "string"},
+    #                         "role_requirements": {
+    #                             "type": "array",
+    #                             "items": {
+    #                                 "type": "object",
+    #                                 "properties": {
+    #                                     "requirement": {"type": "string"}
+    #                                 },
+    #                                 "required": ["requirement"],
+    #                                 "additionalProperties": False
+    #                             }
+    #                         },
+    #                         "resume_requirements": {
+    #                             "type": "array",
+    #                             "items": {
+    #                                 "type": "object",
+    #                                 "properties": {
+    #                                     "requirement": {"type": "string"}
+    #                                 },
+    #                                 "required": ["requirement"],
+    #                                 "additionalProperties": False
+    #                             }
+    #                         }
+    #                     },
+    #                     "required": ["required_role", "role_requirements", "resume_requirements"],
+    #                     "additionalProperties": False
+    #                 }
+    #             },
+    #             "strict": True
+    #         }
+    #     }
+    # )
 
     # this prompt is used if chunking is required on the RFP document we are extracting requiremnts from
-    # data_old = {
-    #     "messages": [
+    # response = client.chat.completions.create(
+    #      model=deployment_name,
+    #      messages=[
     #         {
     #             "role": "system",
     #             "content": f"""You are a Request for Proposal Requirements Extractor expert. Your job is to take in as input a section from a Request for Proposal
@@ -82,15 +148,16 @@ def extract_information_from_page(page_text):
     #             "content": f"Extract the Staffing Requirements from the following section of the Request for Proposal: {page_text}"
     #         }
     #     ],
-    #     "max_tokens": 4000,
-    #     "seed": 42
-    # }
+    #     max_tokens: 4000,
+    #     seed: 42
+    # )
 
-    
     # this prompt is used for sending in a single RFP document without the need to chunk
-    data = {
-        "messages": [
-            {
+    response = client.chat.completions.create(
+         model=deployment_name,
+         #response_format={"type":"json_object"},
+         messages=[
+             {
                 "role": "system",
                 "content": f"""You are a Request for Proposal Requirements Extractor expert. Your job is to take in as input a a Request for Proposal
                     and Extract the Staffing Requirements. You must only extract data that exists in the RFP, do not make anything up.
@@ -108,9 +175,9 @@ def extract_information_from_page(page_text):
                 "content": f"""Analyze the following job requirements and list key skills, qualifications, and experiences:\n\n{page_text}"""
             }
         ],
-        "max_tokens": 4000,
-        "seed": 42
-    }
+        max_tokens=4000,
+        seed=42
+    )
 
     retry_count = 0
 
@@ -118,44 +185,39 @@ def extract_information_from_page(page_text):
 
         # if we are retrying, send back in the json_data for the LLM to retry the format
         if (retry_count > 0):
-            data = {
-                "messages": [
+            response = client.chat.completions.create(
+                model=deployment_name,
+                response_format={"type":"json_object"},
+                messages=[
                     {
                         "role": "user",
                         "content": f"""The JSON you returned could not be sent into json.loads. Please take the following data and fix it: {json_data}"""
                     }
                 ],
-                "max_tokens": 4000,
-                "seed": 42
-            } 
+                max_tokens=4000,
+                seed=42
+            )
 
-        response = requests.post(url, headers=headers, json=data)
-        
-        if response.status_code == 200:
-            response_data = response.json()
-            message_content = response_data['choices'][0]['message']['content'].strip()
-            
-            # Find the JSON content in the response
-            try:
-                message_content = str(message_content).split("```")[1]
+        message_content = response.choices[0].message.content.strip()
 
-                if message_content.startswith('json'):
-                    # Remove the first occurrence of 'json' from the response text
-                    message_content = message_content[4:]
+        # Find the JSON content in the response
+        try:
+            message_content = str(message_content).split("```")[1]
 
-                cleaned_json = message_content.replace('\n', '').replace('\\n', '').replace('\\', '').strip('"')
+            if message_content.startswith('json'):
+                # Remove the first occurrence of 'json' from the response text
+                message_content = message_content[4:]
 
-                json_data = json.loads(cleaned_json)
+            cleaned_json = message_content.replace('\n', '').replace('\\n', '').replace('\\', '').strip('"')
 
-                #cleaned_json = json.dumps(json_data, indent=4)
-                #print(cleaned_json)
+            json_data = json.loads(cleaned_json)
 
-                return json_data
-            except (json.JSONDecodeError, ValueError, IndexError) as e:
-                print("Error: The response content is not valid JSON")
-                retry_count = retry_count + 1
+            #cleaned_json = json.dumps(json_data, indent=4)
+            #print(cleaned_json)
 
-        else:
-            response.raise_for_status()
-    
+            return json_data
+        except (json.JSONDecodeError, ValueError, IndexError) as e:
+            print("Error: The response content is not valid JSON")
+            retry_count = retry_count + 1
+
     print("Retry count exceeded!")

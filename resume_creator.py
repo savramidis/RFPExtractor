@@ -3,6 +3,7 @@ import io
 import pandas as pd
 import json
 import requests
+from openai import AzureOpenAI
 from azure.storage.blob import BlobServiceClient, ContainerClient
 from typing import List, Dict
 from docx import Document
@@ -17,6 +18,13 @@ load_dotenv()
 api_key = os.getenv("AZURE_OPENAI_API_KEY")
 api_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
 deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
+
+client = AzureOpenAI(
+    api_key=api_key,
+    # per comment in staffing requirements extractor, when the 2024-08-06 API is available, we'll switch to that to use structured output
+    api_version="2024-02-15-preview",
+    azure_endpoint=api_endpoint
+)
 
 # Get environment variables
 connection_string = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
@@ -85,35 +93,142 @@ def extract_staffing_requirements(documents: List[Dict]) -> Dict[str, List[Dict]
 
 def generate_resume_content(employee_data, staffing_data):
     json_form_employee_data=str([json.dumps({
-        "employee_id": "111",
-        "latest_entry_date":"00:00:0",
-        "latestcipolydate": "00:00:0",
-        "latestfspolydate": "00:00:0",
-        "certification": "AWS Certified Developer - Associate",
-        "certifier_or_issuer": "Amazon Web Services",
-        "issue_date": "5\\/22\\/2021",
-        "expiration_date": "5\\/22\\/2024",
-        "bsdl_metadata_file_path": "\\/path\\/to\\/metadata\\/file",
-        "bsdl_metadata_file_name": "RAASDW_WORKER_CERTIFICATIONS_REPORT.csv",
-        "bsdl_metadata_file_size": 8453085,
-        "bsdl_metadata_file_modification_time": "00:16.0",
-        "bsdl_date_loaded": "3\\/29\\/2023",
-        "bsdl_time_loaded": "00:20.3"
-    }),json.dumps({
-        "employee_id": 894756,
-        "latest_entry_date": "00:00.0",
-        "latestcipolydate": "00:00:0",
-        "latestfspolydate": "00:00:0",
-        "certification": "Oracle Certified Professional, Java SE 8 Programmer",
-        "certifier_or_issuer": "Oracle",
-        "issue_date": "11\\/15\\/2019",
-        "expiration_date": "00:00:0",
-        "bsdl_metadata_file_path": "\\/path\\/to\\/metadata\\/file",
-        "bsdl_metadata_file_name": "RAASDW_WORKER_CERTIFICATIONS_REPORT.csv",
-        "bsdl_metadata_file_size": 8453085,
-        "bsdl_metadata_file_modification_time": "00:16.0",
-        "bsdl_date_loaded": "3\\/29\\/2023",
-        "bsdl_time_loaded": "00:20.3"
+        "certs.csv": [
+            {
+                "employee_id": "111",
+                "latest_entry_date":"00:00:0",
+                "latestcipolydate": "00:00:0",
+                "latestfspolydate": "00:00:0",
+                "certification": "AWS Certified Developer - Associate",
+                "certifier_or_issuer": "Amazon Web Services",
+                "issue_date": "5\\/22\\/2021",
+                "expiration_date": "5\\/22\\/2024",
+                "bsdl_metadata_file_path": "\\/path\\/to\\/metadata\\/file",
+                "bsdl_metadata_file_name": "RAASDW_WORKER_CERTIFICATIONS_REPORT.csv",
+                "bsdl_metadata_file_size": 8453085,
+                "bsdl_metadata_file_modification_time": "00:16.0",
+                "bsdl_date_loaded": "3\\/29\\/2023",
+                "bsdl_time_loaded": "00:20.3"
+            },
+            {
+                "employee_id": 894756,
+                "latest_entry_date": "00:00.0",
+                "latestcipolydate": "00:00:0",
+                "latestfspolydate": "00:00:0",
+                "certification": "Oracle Certified Professional, Java SE 8 Programmer",
+                "certifier_or_issuer": "Oracle",
+                "issue_date": "11\\/15\\/2019",
+                "expiration_date": "00:00:0",
+                "bsdl_metadata_file_path": "\\/path\\/to\\/metadata\\/file",
+                "bsdl_metadata_file_name": "RAASDW_WORKER_CERTIFICATIONS_REPORT.csv",
+                "bsdl_metadata_file_size": 8453085,
+                "bsdl_metadata_file_modification_time": "00:16.0",
+                "bsdl_date_loaded": "3\\/29\\/2023",
+                "bsdl_time_loaded": "00:20.3"
+            }
+        ],
+        "education.csv": [
+           {
+                "employee_id": 894756,
+                "highest_degree": "Bachelors",
+                "latest_entry_date": "00:00.0",
+                "school_attended": "University of California, Berkeley",
+                "school_location": "United States of America",
+                "degree": "Bachelor Degree",
+                "field_of_study": "Computer Science",
+                "bsdl_metadata_file_path": "\\/path\\/to\\/azure\\/blob\\/storage\\/RAASDW_WORKER_DEGREES_REPORT.csv",
+                "bsdl_metadata_file_name": "RAASDW_WORKER_DEGREES_REPORT.csv",
+                "bsdl_metadata_file_size": 7508269,
+                "bsdl_metadata_file_modification_time": "00:16.0",
+                "bsdl_date_loaded": "3\\/30\\/2023",
+                "bsdl_time_loaded": "00:20.3"
+            },
+            {
+                "employee_id": 475839,
+                "highest_degree": "Masters",
+                "latest_entry_date": "00:00.0",
+                "school_attended": "University of Maryland",
+                "school_location": "United States of America",
+                "degree":"Bachelor\'s Degree",
+                "field_of_study": "Information Technology",
+                "bsdl_metadata_file_path": "\\/path\\/to\\/azure\\/blob\\/storage\\/RAASDW_WORKER_DEGREES_REPORT.csv",
+                "bsdl_metadata_file_name": "RAASDW_WORKER_DEGREES_REPORT.csv",
+                "bsdl_metadata_file_size": 7508269,
+                "bsdl_metadata_file_modification_time": "00:16.0",
+                "bsdl_date_loaded": "3\\/31\\/2023",
+                "bsdl_time_loaded": "00:20.3"
+            }
+        ],
+        "skills.csv": [
+            {
+                "emplid": 894756,
+                "current_effective_date": "00:00.0",
+                "skill": "Python",
+                "skill_type": "Internal",
+                "bsdl_metadata_file_path": "https:\\/\\/azure.blob.storage\\/INT0014_WORKER_SKILLS.dat",
+                "bsdl_metadata_file_name": "INT0014_WORKER_SKILLS.dat",
+                "bsdl_metadata_file_size": 55513314,
+                "bsdl_metadata_file_modification_time": "30:19.0",
+                "badl_date_loaded": "4\\/1\\/2023",
+                "bsdl_time_loaded": "30:28.0"
+            },
+            {
+                "emplid": 894756,
+                "current_effective_date": "00:00.0",
+                "skill": "Java",
+                "skill_type": "Internal",
+                "bsdl_metadata_file_path": "https:\\/\\/azure.blob.storage\\/INT0014_WORKER_SKILLS.dat",
+                "bsdl_metadata_file_name": "INT0014_WORKER_SKILLS.dat",
+                "bsdl_metadata_file_size": 55513314,
+                "bsdl_metadata_file_modification_time": "30:19.0",
+                "badl_date_loaded": "4\\/1\\/2023",
+                "bsdl_time_loaded": "30:28.0"
+            }
+        ],
+        "work_history.csv": [
+            {
+                "employeeID": 894756,
+                "workdayID": "5e12f540-8db1-44e8-99f3-d5ff4c5b4d99",
+                "worker_id": "5e12f540-8db1-44e8-99f3-d5ff4c5b4d99",
+                "worker_descriptor": "John Doe (894756)",
+                "startDate": "2021-03-15",
+                "endDate": "null",
+                "responsibilitiesAndAchievements": "Developed and maintained scalable software solutions. Collaborated with cross-functional teams to define, design, and ship new features. Ensured the performance, quality, and responsiveness of applications. Identified and corrected bottlenecks and fixed bugs.",
+                "skillWorkdayID": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+                "company": "Booz Allen Hamilton",
+                "enteredOn": "2023-04-01",
+                "jobTitle": "Mid-Level Software Engineer",
+                "skillReferenceID": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+                "source_id": "3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
+                "source_descriptor": "Self",
+                "externalJob_id": "4d5e6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+                "externalJob_descriptor": "Mid-Level Software Engineer",
+                "bsdl_date_loaded": "2023-04-01",
+                "bsdl_time_loaded": "2023-04-01T08:10:00Z",
+                "bsdl_load_id": "5e6f7a8b-9c0d-1e2f-3a4b5c6d7e8f"
+            },
+            {
+                "employeeID": 894756,
+                "workdayID": "5e12f540-8db1-44e8-99f3-d5ff4c5b4d99",
+                "worker_id": "5e12f540-8db1-44e8-99f3-d5ff4c5b4d99",
+                "worker_descriptor": "John Doe (894756)",
+                "startDate": "2019-08-01",
+                "endDate": "2021-03-14",
+                "responsibilitiesAndAchievements": "Participated in the full software development lifecycle, from concept to deployment in a collaborative environment. Implemented backend services for web applications. Wrote clean, maintainable code and performed peer code-reviews.",
+                "skillWorkdayID": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+                "company": "Acme Corp",
+                "enteredOn": "2023-04-01",
+                "jobTitle": "Software Engineer",
+                "skillReferenceID": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+                "source_id": "3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
+                "source_descriptor": "Recruiting",
+                "externalJob_id": "4d5e6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+                "externalJob_descriptor": "Software Engineer",
+                "bsdl_date_loaded": "2023-04-01",
+                "bsdl_time_loaded": "2023-04-01T08:15:00Z",
+                "bsdl_load_id": "5e6f7a8b-9c0d-1e2f-3a4b5c6d7e8f"
+            }
+        ]
     })])
 
     json_form_resume_requirements=str([json.dumps({
@@ -157,6 +272,14 @@ def generate_resume_content(employee_data, staffing_data):
         "certifier_or_issuer": "Amazon Web Services",
         "issue_date": "5\\/22\\/2021",
         "expiration_date": "5\\/22\\/2024",
+        "highest_degree": "Bachelors",
+        "school_attended": "University of California, Berkeley",
+        "field_of_study": "Computer Science",
+        "skill": "Python",
+        "worker_description": "John Doe (894756)",
+        "responsibilitiesAndAchievements": "Developed and maintained scalable software solutions. Collaborated with cross-functional teams to define, design, and ship new features. Ensured the performance, quality, and responsiveness of applications. Identified and corrected bottlenecks and fixed bugs.",
+        "company": "Booz Allen Hamilton",
+        "jobTitle": "Mid-Level Software Engineer",
         "bsdl_metadata_file_path": "\\/path\\/to\\/metadata\\/file",
         "bsdl_metadata_file_name": "RAASDW_WORKER_CERTIFICATIONS_REPORT.csv",
         "bsdl_metadata_file_size": 8453085,
@@ -186,6 +309,17 @@ def generate_resume_content(employee_data, staffing_data):
         "certifier_or_issuer": "Oracle",
         "issue_date": "11\\/15\\/2019",
         "expiration_date": "00:00:0",
+        "highest_degree": "Bachelors",
+        "school_attended": "University of Michigan",
+        "field_of_study": "Computer Science",
+        "skill": ".NET",
+        "worker_description": "Jane Doe (894756)",
+        "responsibilitiesAndAchievements": "Developed and maintained scalable software solutions. Collaborated with cross-functional teams to define, design, and ship new features. Ensured the performance, quality, and responsiveness of applications. Identified and corrected bottlenecks and fixed bugs.",
+        "company": "Northrop Grumman",
+        "jobTitle": "Mid-Level Software Engineer",
+        "bsdl_metadata_file_path": "\\/path\\/to\\/metadata\\/file",
+        "bsdl_metadata_file_name": "RAASDW_WORKER_CERTIFICATIONS_REPORT.csv",
+        "bsdl_metadata_file_size": 8453085,
         "bsdl_metadata_file_path": "\\/path\\/to\\/metadata\\/file",
         "bsdl_metadata_file_name": "RAASDW_WORKER_CERTIFICATIONS_REPORT.csv",
         "bsdl_metadata_file_size": 8453085,
@@ -207,25 +341,19 @@ def generate_resume_content(employee_data, staffing_data):
             }
         ]
     })])
-    
 
-    url = f"{api_endpoint}/openai/deployments/{deployment_name}/chat/completions?api-version=2024-02-15-preview"
-    headers = {
-        "Content-Type": "application/json",
-        "api-key": api_key
-    }
-
-    data = {
-        "messages": [
+    response = client.chat.completions.create(
+        model=deployment_name,
+        messages=[
             {
                 "role": "system",
                 "content": f"""You are a Request for Proposal Role Matcher. Your job is to take in as input a JSON payload describing employees and a JSON payload
-                    describing a roles extracted from a Request for Propoal. Each node in the employee JSON will list the certifications they hold. The employee JSON
-                    will be in the following format: {json_form_employee_data}. You will check each node, which represents an employee against all roles described in
-                    the roles JSON and determine which roles match the certifications held by the employee. The roles JSON will be in the following format {json_form_resume_requirements}.
-                    You must inspect each nodes of the roles JSON, where the requirements are stored in the rfp_staffing_requirements node.
-                    Each match must be constructed as a node and added to a JSON list and you must always and only return the matches as JSON in the following format ```{json_form_matches}```
-                    where you are concatenating the two nodes together to return.
+                    describing a roles extracted from a Request for Propoal. Each node in the employee JSON will list the certifications they hold, their education,
+                    their skills, and their work history. The employee JSON will be in the following format: {json_form_employee_data}. You will check each node, 
+                    which represents an employee against all roles described in the roles JSON and determine which roles match the employee's details. The roles JSON
+                    will be in the following format {json_form_resume_requirements}. You must inspect each nodes of the roles JSON, where the requirements are stored
+                    in the rfp_staffing_requirements node. Each match must be constructed as a node and added to a JSON list and you must always and only return the
+                    matches as JSON in the following format ```{json_form_matches}``` where you are concatenating the two nodes together to return.
                     Ensure the JSON is properly formatted and does not contain any extra characters, malformed structures, and is properly encapsulated.
                     """
             },
@@ -234,16 +362,32 @@ def generate_resume_content(employee_data, staffing_data):
                 "content": f"""Look through each employee in the given employee data: {employee_data}\n\n and find roles from this data: {staffing_data}\n\n which match the employees certifications."""
             }
         ],
-        "max_tokens": 4000,
-        "seed": 42
-    }
+        max_tokens=4000,
+        seed=42
+    )
+    
+    retry_count = 0
 
-    response = requests.post(url, headers=headers, json=data)
-        
-    if response.status_code == 200:
-        response_data = response.json()
-        message_content = response_data['choices'][0]['message']['content'].strip()
-        
+    while (retry_count < 3):
+
+        # if we are retrying, send back in the json_data for the LLM to retry the format
+        if (retry_count > 0):
+            response = client.chat.completions.create(
+                model=deployment_name,
+                response_format={"type":"json_object"},
+                messages=[
+                    {
+                        "role": "user",
+                        "content": f"""The JSON you returned could not be sent into json.loads. Please take the following data and fix it: {json_data}"""
+                    }
+                ],
+                max_tokens=4000,
+                seed=42
+            )
+    
+
+        message_content = response.choices[0].message.content.strip()
+            
         # Find the JSON content in the response
         try:
             message_content = str(message_content).split("```")[1]
@@ -264,8 +408,8 @@ def generate_resume_content(employee_data, staffing_data):
             print("Error: The response content is not valid JSON")
             retry_count = retry_count + 1
 
-    else:
-        response.raise_for_status()
+    print("Retry count exceeded!")
+
 
 # get employee data, assumes a detailed search
 employee_data_json = get_employee_data()
