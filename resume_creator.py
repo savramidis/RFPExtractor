@@ -367,7 +367,8 @@ def generate_resume_content(employee_data, staffing_data):
     )
     
     retry_count = 0
-
+    json_data = ""
+    
     while (retry_count < 3):
 
         # if we are retrying, send back in the json_data for the LLM to retry the format
@@ -385,7 +386,6 @@ def generate_resume_content(employee_data, staffing_data):
                 seed=42
             )
     
-
         message_content = response.choices[0].message.content.strip()
             
         # Find the JSON content in the response
