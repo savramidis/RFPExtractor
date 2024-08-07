@@ -56,3 +56,20 @@ class cosmos_db_service:
         except exceptions.CosmosHttpResponseError as e:
             logging.error(f"Failed to query items: {e.message}")
             raise
+
+    def update_rfp_staffing_extract_status(self, item_id, rfp_id, new_value):
+        if self.container is None:
+            raise ValueError("The CosmosDbService has not been initialized. Call initialize() before using this method.")
+        try:
+            updated_item = self.container.read_item(item=item_id, partition_key=rfp_id)
+            
+            # Update the document (modify the fields as needed)
+            updated_item['status'] = new_value
+
+            # Replace the document in the database
+            self.container.replace_item(item=updated_item, body=updated_item)
+
+            return updated_item
+        except exceptions.CosmosHttpResponseError as e:
+            logging.error(f"Failed to upsert item: {e.message}")
+            raise
