@@ -367,19 +367,19 @@ def generate_resume_content(employee_data, staffing_data):
     )
     
     retry_count = 0
-    json_data = ""
-    
+    json_data = {}
+    cleaned_json = {}
+
     while (retry_count < 3):
 
         # if we are retrying, send back in the json_data for the LLM to retry the format
         if (retry_count > 0):
             response = client.chat.completions.create(
                 model=deployment_name,
-                response_format={"type":"json_object"},
                 messages=[
                     {
                         "role": "user",
-                        "content": f"""The JSON you returned could not be sent into json.loads. Please take the following data and fix it: {json_data}"""
+                        "content": f"""The JSON you returned could not be sent into json.loads. Please take the following data and fix it: {cleaned_json}"""
                     }
                 ],
                 max_tokens=4000,
@@ -419,3 +419,4 @@ grouped_staffing_data = cosmos_db_service.get_grouped_rfp_staffing_extract()
 
 # send employee data & rfp staffing data to OpenAI for processing
 json_matches = generate_resume_content(employee_data_json, grouped_staffing_data)
+print(json.dumps(json_matches, indent=4))

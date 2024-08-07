@@ -180,18 +180,18 @@ def extract_information_from_page(page_text):
     )
 
     retry_count = 0
-
+    cleaned_json = {}
+    
     while (retry_count < 3):
 
         # if we are retrying, send back in the json_data for the LLM to retry the format
         if (retry_count > 0):
             response = client.chat.completions.create(
                 model=deployment_name,
-                response_format={"type":"json_object"},
                 messages=[
                     {
                         "role": "user",
-                        "content": f"""The JSON you returned could not be sent into json.loads. Please take the following data and fix it: {json_data}"""
+                        "content": f"""The JSON you returned could not be sent into json.loads. Please take the following data and fix it: {cleaned_json}"""
                     }
                 ],
                 max_tokens=4000,
