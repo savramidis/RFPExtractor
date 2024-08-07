@@ -22,5 +22,5 @@ cosmos_db_service.initialize()
 created_item = cosmos_db_service.insert_rfp_staffing_extract(single_document)
 print(created_item)
 
-updated_item = cosmos_db_service.update_rfp_staffing_extract(id, rfp_id, "status", "resume_created")
+updated_item = cosmos_db_service.update_rfp_staffing_extract_status(id, rfp_id, "resume_created")
 print(updated_item)
