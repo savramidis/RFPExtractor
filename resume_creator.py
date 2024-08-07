@@ -289,4 +289,5 @@ grouped_staffing_data = cosmos_db_service.get_grouped_rfp_staffing_extract()
 
 # send employee data & rfp staffing data to OpenAI for processing
 json_matches = generate_resume_content(employee_data_json, grouped_staffing_data)
-print(json_matches)
+resume_extract = json.dumps(json_matches)
+print(resume_extract)
