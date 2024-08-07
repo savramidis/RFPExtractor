@@ -4,3 +4,4 @@ azure-ai-formrecognizer
 openai
 azure.cosmos
 aiohttp
+pandas
