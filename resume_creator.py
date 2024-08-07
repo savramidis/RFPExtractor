@@ -238,34 +238,48 @@ def generate_resume_content(employee_data, staffing_data):
         "seed": 42
     }
 
-    response = requests.post(url, headers=headers, json=data)
-        
-    if response.status_code == 200:
-        response_data = response.json()
-        message_content = response_data['choices'][0]['message']['content'].strip()
-        
-        # Find the JSON content in the response
-        try:
-            message_content = str(message_content).split("```")[1]
+    retry_count = 0
 
-            if message_content.startswith('json'):
-                # Remove the first occurrence of 'json' from the response text
-                message_content = message_content[4:]
+    json_data = ""
+    while (retry_count < 3):
 
-            cleaned_json = message_content.replace('\n', '').replace('\\n', '').replace('\\', '').strip('"')
+        # if we are retrying, send back in the json_data for the LLM to retry the format
+        if (retry_count > 0):
+            data = {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": f"""The JSON you returned could not be sent into json.loads. Please take the following data and fix it: {json_data}"""
+                    }
+                ],
+                "max_tokens": 4000,
+                "seed": 42
+            }
 
-            json_data = json.loads(cleaned_json)
+        response = requests.post(url, headers=headers, json=data)
+            
+        if response.status_code == 200:
+            response_data = response.json()
+            message_content = response_data['choices'][0]['message']['content'].strip()
+            
+            # Find the JSON content in the response
+            try:
+                message_content = str(message_content).split("```")[1]
 
-            #cleaned_json = json.dumps(json_data, indent=4)
-            #print(cleaned_json)
+                if message_content.startswith('json'):
+                    # Remove the first occurrence of 'json' from the response text
+                    message_content = message_content[4:]
 
-            return json_data
-        except (json.JSONDecodeError, ValueError, IndexError) as e:
-            print("Error: The response content is not valid JSON")
-            retry_count = retry_count + 1
+                cleaned_json = message_content.replace('\n', '').replace('\\n', '').replace('\\', '').strip('"')
 
-    else:
-        response.raise_for_status()
+                json_data = json.loads(cleaned_json)
+
+                return json_data
+            except (json.JSONDecodeError, ValueError, IndexError) as e:
+                print("Error: The response content is not valid JSON")
+                retry_count = retry_count + 1
+        else:
+            response.raise_for_status()
 
 # get employee data, assumes a detailed search
 employee_data_json = get_employee_data()
@@ -275,3 +289,4 @@ grouped_staffing_data = cosmos_db_service.get_grouped_rfp_staffing_extract()
 
 # send employee data & rfp staffing data to OpenAI for processing
 json_matches = generate_resume_content(employee_data_json, grouped_staffing_data)
+print(json_matches)
