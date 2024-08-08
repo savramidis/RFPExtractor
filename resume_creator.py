@@ -2,14 +2,14 @@ import os
 import io
 import pandas as pd
 import json
-import requests
 from openai import AzureOpenAI
-from azure.storage.blob import BlobServiceClient, ContainerClient
+from azure.storage.blob import BlobServiceClient
 from typing import List, Dict
 from docx import Document
 from cosmos_db_service import cosmos_db_service
 from dotenv import load_dotenv
 from azure.storage.blob import BlobServiceClient
+from io import BytesIO
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -410,6 +410,27 @@ def generate_resume_content(employee_data, staffing_data):
 
     print("Retry count exceeded!")
 
+def create_resume(json_matches):
+    print(json.dumps(json_matches, indent=4))
+
+    # resume template to fill in
+    blob_name = "test.docx"
+
+    # Create the BlobServiceClient object which will be used to create a container client
+    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+
+    # Create a blob client using the blob name and container name
+    blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
+
+    # Download the blob to an in-memory byte stream
+    blob_data = blob_client.download_blob().readall()
+    byte_stream = BytesIO(blob_data)
+
+    # Load the in-memory byte stream into python-docx
+    document = Document(byte_stream)
+
+    for paragraph in document.paragraphs:
+        print(paragraph.text)
 
 # get employee data, assumes a detailed search
 employee_data_json = get_employee_data()
@@ -419,4 +440,6 @@ grouped_staffing_data = cosmos_db_service.get_grouped_rfp_staffing_extract()
 
 # send employee data & rfp staffing data to OpenAI for processing
 json_matches = generate_resume_content(employee_data_json, grouped_staffing_data)
-print(json.dumps(json_matches, indent=4))
+
+if (json_matches):
+    create_resume(json_matches)
