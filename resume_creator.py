@@ -92,323 +92,313 @@ def extract_staffing_requirements(documents: List[Dict]) -> Dict[str, List[Dict]
     return role_requirements
 
 def generate_resume_content(employee_data, staffing_data):
-    json_form_employee_data=str([json.dumps({
-        "certs.csv": [
-            {
-                "employee_id": "111",
-                "latest_entry_date":"00:00:0",
-                "latestcipolydate": "00:00:0",
-                "latestfspolydate": "00:00:0",
-                "certification": "AWS Certified Developer - Associate",
-                "certifier_or_issuer": "Amazon Web Services",
-                "issue_date": "5\\/22\\/2021",
-                "expiration_date": "5\\/22\\/2024",
-                "bsdl_metadata_file_path": "\\/path\\/to\\/metadata\\/file",
-                "bsdl_metadata_file_name": "RAASDW_WORKER_CERTIFICATIONS_REPORT.csv",
-                "bsdl_metadata_file_size": 8453085,
-                "bsdl_metadata_file_modification_time": "00:16.0",
-                "bsdl_date_loaded": "3\\/29\\/2023",
-                "bsdl_time_loaded": "00:20.3"
-            },
-            {
-                "employee_id": 894756,
-                "latest_entry_date": "00:00.0",
-                "latestcipolydate": "00:00:0",
-                "latestfspolydate": "00:00:0",
-                "certification": "Oracle Certified Professional, Java SE 8 Programmer",
-                "certifier_or_issuer": "Oracle",
-                "issue_date": "11\\/15\\/2019",
-                "expiration_date": "00:00:0",
-                "bsdl_metadata_file_path": "\\/path\\/to\\/metadata\\/file",
-                "bsdl_metadata_file_name": "RAASDW_WORKER_CERTIFICATIONS_REPORT.csv",
-                "bsdl_metadata_file_size": 8453085,
-                "bsdl_metadata_file_modification_time": "00:16.0",
-                "bsdl_date_loaded": "3\\/29\\/2023",
-                "bsdl_time_loaded": "00:20.3"
-            }
-        ],
-        "education.csv": [
-           {
-                "employee_id": 894756,
-                "highest_degree": "Bachelors",
-                "latest_entry_date": "00:00.0",
-                "school_attended": "University of California, Berkeley",
-                "school_location": "United States of America",
-                "degree": "Bachelor Degree",
-                "field_of_study": "Computer Science",
-                "bsdl_metadata_file_path": "\\/path\\/to\\/azure\\/blob\\/storage\\/RAASDW_WORKER_DEGREES_REPORT.csv",
-                "bsdl_metadata_file_name": "RAASDW_WORKER_DEGREES_REPORT.csv",
-                "bsdl_metadata_file_size": 7508269,
-                "bsdl_metadata_file_modification_time": "00:16.0",
-                "bsdl_date_loaded": "3\\/30\\/2023",
-                "bsdl_time_loaded": "00:20.3"
-            },
-            {
-                "employee_id": 475839,
-                "highest_degree": "Masters",
-                "latest_entry_date": "00:00.0",
-                "school_attended": "University of Maryland",
-                "school_location": "United States of America",
-                "degree":"Bachelor\'s Degree",
-                "field_of_study": "Information Technology",
-                "bsdl_metadata_file_path": "\\/path\\/to\\/azure\\/blob\\/storage\\/RAASDW_WORKER_DEGREES_REPORT.csv",
-                "bsdl_metadata_file_name": "RAASDW_WORKER_DEGREES_REPORT.csv",
-                "bsdl_metadata_file_size": 7508269,
-                "bsdl_metadata_file_modification_time": "00:16.0",
-                "bsdl_date_loaded": "3\\/31\\/2023",
-                "bsdl_time_loaded": "00:20.3"
-            }
-        ],
-        "skills.csv": [
-            {
-                "emplid": 894756,
-                "current_effective_date": "00:00.0",
-                "skill": "Python",
-                "skill_type": "Internal",
-                "bsdl_metadata_file_path": "https:\\/\\/azure.blob.storage\\/INT0014_WORKER_SKILLS.dat",
-                "bsdl_metadata_file_name": "INT0014_WORKER_SKILLS.dat",
-                "bsdl_metadata_file_size": 55513314,
-                "bsdl_metadata_file_modification_time": "30:19.0",
-                "badl_date_loaded": "4\\/1\\/2023",
-                "bsdl_time_loaded": "30:28.0"
-            },
-            {
-                "emplid": 894756,
-                "current_effective_date": "00:00.0",
-                "skill": "Java",
-                "skill_type": "Internal",
-                "bsdl_metadata_file_path": "https:\\/\\/azure.blob.storage\\/INT0014_WORKER_SKILLS.dat",
-                "bsdl_metadata_file_name": "INT0014_WORKER_SKILLS.dat",
-                "bsdl_metadata_file_size": 55513314,
-                "bsdl_metadata_file_modification_time": "30:19.0",
-                "badl_date_loaded": "4\\/1\\/2023",
-                "bsdl_time_loaded": "30:28.0"
-            }
-        ],
-        "work_history.csv": [
-            {
-                "employeeID": 894756,
-                "workdayID": "5e12f540-8db1-44e8-99f3-d5ff4c5b4d99",
-                "worker_id": "5e12f540-8db1-44e8-99f3-d5ff4c5b4d99",
-                "worker_descriptor": "John Doe (894756)",
-                "startDate": "2021-03-15",
-                "endDate": "null",
-                "responsibilitiesAndAchievements": "Developed and maintained scalable software solutions. Collaborated with cross-functional teams to define, design, and ship new features. Ensured the performance, quality, and responsiveness of applications. Identified and corrected bottlenecks and fixed bugs.",
-                "skillWorkdayID": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
-                "company": "Booz Allen Hamilton",
-                "enteredOn": "2023-04-01",
-                "jobTitle": "Mid-Level Software Engineer",
-                "skillReferenceID": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
-                "source_id": "3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
-                "source_descriptor": "Self",
-                "externalJob_id": "4d5e6f7a-8b9c-0d1e-2f3a4b5c6d7e",
-                "externalJob_descriptor": "Mid-Level Software Engineer",
-                "bsdl_date_loaded": "2023-04-01",
-                "bsdl_time_loaded": "2023-04-01T08:10:00Z",
-                "bsdl_load_id": "5e6f7a8b-9c0d-1e2f-3a4b5c6d7e8f"
-            },
-            {
-                "employeeID": 894756,
-                "workdayID": "5e12f540-8db1-44e8-99f3-d5ff4c5b4d99",
-                "worker_id": "5e12f540-8db1-44e8-99f3-d5ff4c5b4d99",
-                "worker_descriptor": "John Doe (894756)",
-                "startDate": "2019-08-01",
-                "endDate": "2021-03-14",
-                "responsibilitiesAndAchievements": "Participated in the full software development lifecycle, from concept to deployment in a collaborative environment. Implemented backend services for web applications. Wrote clean, maintainable code and performed peer code-reviews.",
-                "skillWorkdayID": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
-                "company": "Acme Corp",
-                "enteredOn": "2023-04-01",
-                "jobTitle": "Software Engineer",
-                "skillReferenceID": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
-                "source_id": "3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
-                "source_descriptor": "Recruiting",
-                "externalJob_id": "4d5e6f7a-8b9c-0d1e-2f3a4b5c6d7e",
-                "externalJob_descriptor": "Software Engineer",
-                "bsdl_date_loaded": "2023-04-01",
-                "bsdl_time_loaded": "2023-04-01T08:15:00Z",
-                "bsdl_load_id": "5e6f7a8b-9c0d-1e2f-3a4b5c6d7e8f"
-            }
-        ]
-    })])
+    # json_form_employee_data=str([json.dumps({
+    #     "certs.csv": [
+    #         {
+    #             "employee_id": "111",
+    #             "latest_entry_date":"00:00:0",
+    #             "latestcipolydate": "00:00:0",
+    #             "latestfspolydate": "00:00:0",
+    #             "certification": "AWS Certified Developer - Associate",
+    #             "certifier_or_issuer": "Amazon Web Services",
+    #             "issue_date": "5\\/22\\/2021",
+    #             "expiration_date": "5\\/22\\/2024",
+    #             "bsdl_metadata_file_path": "\\/path\\/to\\/metadata\\/file",
+    #             "bsdl_metadata_file_name": "RAASDW_WORKER_CERTIFICATIONS_REPORT.csv",
+    #             "bsdl_metadata_file_size": 8453085,
+    #             "bsdl_metadata_file_modification_time": "00:16.0",
+    #             "bsdl_date_loaded": "3\\/29\\/2023",
+    #             "bsdl_time_loaded": "00:20.3"
+    #         },
+    #         {
+    #             "employee_id": 894756,
+    #             "latest_entry_date": "00:00.0",
+    #             "latestcipolydate": "00:00:0",
+    #             "latestfspolydate": "00:00:0",
+    #             "certification": "Oracle Certified Professional, Java SE 8 Programmer",
+    #             "certifier_or_issuer": "Oracle",
+    #             "issue_date": "11\\/15\\/2019",
+    #             "expiration_date": "00:00:0",
+    #             "bsdl_metadata_file_path": "\\/path\\/to\\/metadata\\/file",
+    #             "bsdl_metadata_file_name": "RAASDW_WORKER_CERTIFICATIONS_REPORT.csv",
+    #             "bsdl_metadata_file_size": 8453085,
+    #             "bsdl_metadata_file_modification_time": "00:16.0",
+    #             "bsdl_date_loaded": "3\\/29\\/2023",
+    #             "bsdl_time_loaded": "00:20.3"
+    #         }
+    #     ],
+    #     "education.csv": [
+    #        {
+    #             "employee_id": 894756,
+    #             "highest_degree": "Bachelors",
+    #             "latest_entry_date": "00:00.0",
+    #             "school_attended": "University of California, Berkeley",
+    #             "school_location": "United States of America",
+    #             "degree": "Bachelor Degree",
+    #             "field_of_study": "Computer Science",
+    #             "bsdl_metadata_file_path": "\\/path\\/to\\/azure\\/blob\\/storage\\/RAASDW_WORKER_DEGREES_REPORT.csv",
+    #             "bsdl_metadata_file_name": "RAASDW_WORKER_DEGREES_REPORT.csv",
+    #             "bsdl_metadata_file_size": 7508269,
+    #             "bsdl_metadata_file_modification_time": "00:16.0",
+    #             "bsdl_date_loaded": "3\\/30\\/2023",
+    #             "bsdl_time_loaded": "00:20.3"
+    #         },
+    #         {
+    #             "employee_id": 475839,
+    #             "highest_degree": "Masters",
+    #             "latest_entry_date": "00:00.0",
+    #             "school_attended": "University of Maryland",
+    #             "school_location": "United States of America",
+    #             "degree":"Bachelor\'s Degree",
+    #             "field_of_study": "Information Technology",
+    #             "bsdl_metadata_file_path": "\\/path\\/to\\/azure\\/blob\\/storage\\/RAASDW_WORKER_DEGREES_REPORT.csv",
+    #             "bsdl_metadata_file_name": "RAASDW_WORKER_DEGREES_REPORT.csv",
+    #             "bsdl_metadata_file_size": 7508269,
+    #             "bsdl_metadata_file_modification_time": "00:16.0",
+    #             "bsdl_date_loaded": "3\\/31\\/2023",
+    #             "bsdl_time_loaded": "00:20.3"
+    #         }
+    #     ],
+    #     "skills.csv": [
+    #         {
+    #             "emplid": 894756,
+    #             "current_effective_date": "00:00.0",
+    #             "skill": "Python",
+    #             "skill_type": "Internal",
+    #             "bsdl_metadata_file_path": "https:\\/\\/azure.blob.storage\\/INT0014_WORKER_SKILLS.dat",
+    #             "bsdl_metadata_file_name": "INT0014_WORKER_SKILLS.dat",
+    #             "bsdl_metadata_file_size": 55513314,
+    #             "bsdl_metadata_file_modification_time": "30:19.0",
+    #             "badl_date_loaded": "4\\/1\\/2023",
+    #             "bsdl_time_loaded": "30:28.0"
+    #         },
+    #         {
+    #             "emplid": 894756,
+    #             "current_effective_date": "00:00.0",
+    #             "skill": "Java",
+    #             "skill_type": "Internal",
+    #             "bsdl_metadata_file_path": "https:\\/\\/azure.blob.storage\\/INT0014_WORKER_SKILLS.dat",
+    #             "bsdl_metadata_file_name": "INT0014_WORKER_SKILLS.dat",
+    #             "bsdl_metadata_file_size": 55513314,
+    #             "bsdl_metadata_file_modification_time": "30:19.0",
+    #             "badl_date_loaded": "4\\/1\\/2023",
+    #             "bsdl_time_loaded": "30:28.0"
+    #         }
+    #     ],
+    #     "work_history.csv": [
+    #         {
+    #             "employeeID": 894756,
+    #             "workdayID": "5e12f540-8db1-44e8-99f3-d5ff4c5b4d99",
+    #             "worker_id": "5e12f540-8db1-44e8-99f3-d5ff4c5b4d99",
+    #             "worker_descriptor": "John Doe (894756)",
+    #             "startDate": "2021-03-15",
+    #             "endDate": "null",
+    #             "responsibilitiesAndAchievements": "Developed and maintained scalable software solutions. Collaborated with cross-functional teams to define, design, and ship new features. Ensured the performance, quality, and responsiveness of applications. Identified and corrected bottlenecks and fixed bugs.",
+    #             "skillWorkdayID": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+    #             "company": "Booz Allen Hamilton",
+    #             "enteredOn": "2023-04-01",
+    #             "jobTitle": "Mid-Level Software Engineer",
+    #             "skillReferenceID": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+    #             "source_id": "3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
+    #             "source_descriptor": "Self",
+    #             "externalJob_id": "4d5e6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+    #             "externalJob_descriptor": "Mid-Level Software Engineer",
+    #             "bsdl_date_loaded": "2023-04-01",
+    #             "bsdl_time_loaded": "2023-04-01T08:10:00Z",
+    #             "bsdl_load_id": "5e6f7a8b-9c0d-1e2f-3a4b5c6d7e8f"
+    #         },
+    #         {
+    #             "employeeID": 894756,
+    #             "workdayID": "5e12f540-8db1-44e8-99f3-d5ff4c5b4d99",
+    #             "worker_id": "5e12f540-8db1-44e8-99f3-d5ff4c5b4d99",
+    #             "worker_descriptor": "John Doe (894756)",
+    #             "startDate": "2019-08-01",
+    #             "endDate": "2021-03-14",
+    #             "responsibilitiesAndAchievements": "Participated in the full software development lifecycle, from concept to deployment in a collaborative environment. Implemented backend services for web applications. Wrote clean, maintainable code and performed peer code-reviews.",
+    #             "skillWorkdayID": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+    #             "company": "Acme Corp",
+    #             "enteredOn": "2023-04-01",
+    #             "jobTitle": "Software Engineer",
+    #             "skillReferenceID": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+    #             "source_id": "3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
+    #             "source_descriptor": "Recruiting",
+    #             "externalJob_id": "4d5e6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+    #             "externalJob_descriptor": "Software Engineer",
+    #             "bsdl_date_loaded": "2023-04-01",
+    #             "bsdl_time_loaded": "2023-04-01T08:15:00Z",
+    #             "bsdl_load_id": "5e6f7a8b-9c0d-1e2f-3a4b5c6d7e8f"
+    #         }
+    #     ]
+    # })])
 
-    json_form_resume_requirements=str([json.dumps({
-        "required_role": "Program Manager",
-        "role_requirements": [
-            {
-                "requirement": "Must have current knowledge and demonstrated experience with Navy METOC operations, operational systems, applications and requirements"
-            },
-            {
-                "requirement": "Must have at a minimum 5 years of demonstrated experience managing scientific personnel working on METOC applications"
-            }
-        ],
-        "resume_requirements": [
-            {
-                "requirement": "Must have 14pt font"
-            }
-        ]
-    }),json.dumps({
-        "required_role": "Research Scientist",
-        "role_requirements": [
-            {
-                "requirement": "NWP focus: Must act as the primary point-of-contact for the development of operational global NWP systems"
-            },
-            {
-                "requirement": "MAP focus: Must act as the primary point-of-contact for METOC applications development including web-based applications and climatology applications"
-            }
-        ],
-        "resume_requirements": [
-            {
-                "requirement": "Must be left-aligned"
-            }
-        ]
-    })])
+    # json_form_resume_requirements=str([json.dumps({
+    #     "required_role": "Program Manager",
+    #     "role_requirements": [
+    #         {
+    #             "requirement": "Must have current knowledge and demonstrated experience with Navy METOC operations, operational systems, applications and requirements"
+    #         },
+    #         {
+    #             "requirement": "Must have at a minimum 5 years of demonstrated experience managing scientific personnel working on METOC applications"
+    #         }
+    #     ],
+    #     "resume_requirements": [
+    #         {
+    #             "requirement": "Must have 14pt font"
+    #         }
+    #     ]
+    # }),json.dumps({
+    #     "required_role": "Research Scientist",
+    #     "role_requirements": [
+    #         {
+    #             "requirement": "NWP focus: Must act as the primary point-of-contact for the development of operational global NWP systems"
+    #         },
+    #         {
+    #             "requirement": "MAP focus: Must act as the primary point-of-contact for METOC applications development including web-based applications and climatology applications"
+    #         }
+    #     ],
+    #     "resume_requirements": [
+    #         {
+    #             "requirement": "Must be left-aligned"
+    #         }
+    #     ]
+    # })])
 
-    json_form_matches=str([json.dumps({
-        "employee_id": "111",
-        "latest_entry_date": "00:00:0",
-        "latestcipolydate": "00:00:0",
-        "latestfspolydate": "00:00:0",
-        "certifications": [
-            {
-                "certification": "AWS Certified Developer - Associate",
-                "certifier_or_issuer": "Amazon Web Services",
-                "issue_date": "5\\/22\\/2021",
-                "expiration_date": "5\\/22\\/2024"
-            }
-        ],
-        "education": [
-            {
-                "highest_degree": "Bachelors",
-                "school_attended": "University of California, Berkeley",
-                "school_location": "United States of America",
-                "degree": "Bachelors Degree",
-                "field_of_study": "Computer Science"
-            }
-        ],
-        "skills": [
-            {
-                "skill": "Python"
-            }
-        ],
-        "work_history": [
-            {
-                "startDate": "2019-01-10",
-                "endDate": "2021-03-14",
-                "responsibilitiesAndAchievements": "Managed multiple large-scale projects, ensuring the application of agile methodologies. Oversaw project lifecycles from initiation to closure, ensuring stakeholder satisfaction. Implemented risk management strategies that reduced project risks by 30%.",
-                "company": "Tech Solutions Inc.",
-                "jobTitle": "Senior Project Manager"
-            }
-        ],
-        "worker_description": "John Doe (894756)",
-        "responsibilitiesAndAchievements": "Developed and maintained scalable software solutions. Collaborated with cross-functional teams to define, design, and ship new features. Ensured the performance, quality, and responsiveness of applications. Identified and corrected bottlenecks and fixed bugs.",
-        "company": "Booz Allen Hamilton",
-        "jobTitle": "Mid-Level Software Engineer",
-        "bsdl_metadata_file_path": "\\/path\\/to\\/metadata\\/file",
-        "bsdl_metadata_file_name": "RAASDW_WORKER_CERTIFICATIONS_REPORT.csv",
-        "bsdl_metadata_file_size": 8453085,
-        "bsdl_metadata_file_modification_time": "00:16.0",
-        "bsdl_date_loaded": "3\\/29\\/2023",
-        "bsdl_time_loaded": "00:20.3",
-        "required_role": "Program Manager",
-        "role_requirements": [
-            {
-                "requirement": "Must have current knowledge and demonstrated experience with Navy METOC operations, operational systems, applications and requirements"
-            },
-            {
-                "requirement": "Must have at a minimum 5 years of demonstrated experience managing scientific personnel working on METOC applications"
-            }
-        ],
-        "resume_requirements": [
-            {
-                "requirement": "Must have 14pt font"
-            }
-        ]
-    }),json.dumps({
-        "employee_id": 894756,
-        "latest_entry_date": "00:00.0",
-        "latestcipolydate": "00:00:0",
-        "latestfspolydate": "00:00:0",
-        "certifications": [
-            {
-                "certification": "Certified Information Systems Security Professional (CISSP)",
-                "certifier_or_issuer": "(ISC)\\u00b2",
-                "issue_date": "11\\/15\\/2018",
-                "expiration_date": "11\\/15\\/2023"
-            }
-        ],
-        "education": [
-            {
-            "highest_degree": "Masters",
-            "school_attended": "University of California, Berkeley",
-            "school_location": "United States of America",
-            "degree": "Master's Degree",
-            "field_of_study": "Project Management"
-            }
-        ],
-        "skills": [
-            {
-                "skill": "Project Management",
-                "skill": "Agile Methodologies"
-            }
-        ],
-        "work_history": [
-            {
-                "startDate": "2019-03-01",
-                "endDate": "2021-04-30",
-                "responsibilitiesAndAchievements": "As a Data Analyst at Initech, my role involved extensive data cleaning, analysis, and visualization to support marketing strategies. I developed a series of predictive models that enhanced customer targeting by 15% and was recognized for my innovative use of visualization tools to convey complex data insights to non-technical stakeholders, which significantly improved project outcomes.",
-                "company": "Initech",
-                "jobTitle": "Data Analyst"
-            }
-        ],
-        "worker_description": "Jane Doe (894756)",
-        "responsibilitiesAndAchievements": "Developed and maintained scalable software solutions. Collaborated with cross-functional teams to define, design, and ship new features. Ensured the performance, quality, and responsiveness of applications. Identified and corrected bottlenecks and fixed bugs.",
-        "company": "Northrop Grumman",
-        "jobTitle": "Mid-Level Software Engineer",
-        "bsdl_metadata_file_path": "\\/path\\/to\\/metadata\\/file",
-        "bsdl_metadata_file_name": "RAASDW_WORKER_CERTIFICATIONS_REPORT.csv",
-        "bsdl_metadata_file_size": 8453085,
-        "bsdl_metadata_file_path": "\\/path\\/to\\/metadata\\/file",
-        "bsdl_metadata_file_name": "RAASDW_WORKER_CERTIFICATIONS_REPORT.csv",
-        "bsdl_metadata_file_size": 8453085,
-        "bsdl_metadata_file_modification_time": "00:16.0",
-        "bsdl_date_loaded": "3\\/29\\/2023",
-        "bsdl_time_loaded": "00:20.3",
-        "required_role": "Research Scientist",
-        "role_requirements": [
-            {
-                "requirement": "NWP focus: Must act as the primary point-of-contact for the development of operational global NWP systems"
-            },
-            {
-                "requirement": "MAP focus: Must act as the primary point-of-contact for METOC applications development including web-based applications and climatology applications"
-            }
-        ],
-        "resume_requirements": [
-            {
-                "requirement": "Must be left-aligned"
-            }
-        ]
-    })])
+    # json_form_matches=str([json.dumps({
+    #     "employee_id": "111",
+    #     "latest_entry_date": "00:00:0",
+    #     "latestcipolydate": "00:00:0",
+    #     "latestfspolydate": "00:00:0",
+    #     "certifications": [
+    #         {
+    #             "certification": "AWS Certified Developer - Associate",
+    #             "certifier_or_issuer": "Amazon Web Services",
+    #             "issue_date": "5\\/22\\/2021",
+    #             "expiration_date": "5\\/22\\/2024"
+    #         }
+    #     ],
+    #     "education": [
+    #         {
+    #             "highest_degree": "Bachelors",
+    #             "school_attended": "University of California, Berkeley",
+    #             "school_location": "United States of America",
+    #             "degree": "Bachelors Degree",
+    #             "field_of_study": "Computer Science"
+    #         }
+    #     ],
+    #     "skills": [
+    #         {
+    #             "skill": "Python"
+    #         }
+    #     ],
+    #     "work_history": [
+    #         {
+    #             "startDate": "2019-01-10",
+    #             "endDate": "2021-03-14",
+    #             "responsibilitiesAndAchievements": "Managed multiple large-scale projects, ensuring the application of agile methodologies. Oversaw project lifecycles from initiation to closure, ensuring stakeholder satisfaction. Implemented risk management strategies that reduced project risks by 30%.",
+    #             "company": "Tech Solutions Inc.",
+    #             "jobTitle": "Senior Project Manager"
+    #         }
+    #     ],
+    #     "worker_description": "John Doe (894756)",
+    #     "responsibilitiesAndAchievements": "Developed and maintained scalable software solutions. Collaborated with cross-functional teams to define, design, and ship new features. Ensured the performance, quality, and responsiveness of applications. Identified and corrected bottlenecks and fixed bugs.",
+    #     "company": "Booz Allen Hamilton",
+    #     "jobTitle": "Mid-Level Software Engineer",
+    #     "bsdl_metadata_file_path": "\\/path\\/to\\/metadata\\/file",
+    #     "bsdl_metadata_file_name": "RAASDW_WORKER_CERTIFICATIONS_REPORT.csv",
+    #     "bsdl_metadata_file_size": 8453085,
+    #     "bsdl_metadata_file_modification_time": "00:16.0",
+    #     "bsdl_date_loaded": "3\\/29\\/2023",
+    #     "bsdl_time_loaded": "00:20.3",
+    #     "required_role": "Program Manager",
+    #     "role_requirements": [
+    #         {
+    #             "requirement": "Must have current knowledge and demonstrated experience with Navy METOC operations, operational systems, applications and requirements"
+    #         },
+    #         {
+    #             "requirement": "Must have at a minimum 5 years of demonstrated experience managing scientific personnel working on METOC applications"
+    #         }
+    #     ],
+    #     "resume_requirements": [
+    #         {
+    #             "requirement": "Must have 14pt font"
+    #         }
+    #     ]
+    # }),json.dumps({
+    #     "employee_id": 894756,
+    #     "latest_entry_date": "00:00.0",
+    #     "latestcipolydate": "00:00:0",
+    #     "latestfspolydate": "00:00:0",
+    #     "certifications": [
+    #         {
+    #             "certification": "Certified Information Systems Security Professional (CISSP)",
+    #             "certifier_or_issuer": "(ISC)\\u00b2",
+    #             "issue_date": "11\\/15\\/2018",
+    #             "expiration_date": "11\\/15\\/2023"
+    #         }
+    #     ],
+    #     "education": [
+    #         {
+    #         "highest_degree": "Masters",
+    #         "school_attended": "University of California, Berkeley",
+    #         "school_location": "United States of America",
+    #         "degree": "Master's Degree",
+    #         "field_of_study": "Project Management"
+    #         }
+    #     ],
+    #     "skills": [
+    #         {
+    #             "skill": "Project Management",
+    #             "skill": "Agile Methodologies"
+    #         }
+    #     ],
+    #     "work_history": [
+    #         {
+    #             "startDate": "2019-03-01",
+    #             "endDate": "2021-04-30",
+    #             "responsibilitiesAndAchievements": "As a Data Analyst at Initech, my role involved extensive data cleaning, analysis, and visualization to support marketing strategies. I developed a series of predictive models that enhanced customer targeting by 15% and was recognized for my innovative use of visualization tools to convey complex data insights to non-technical stakeholders, which significantly improved project outcomes.",
+    #             "company": "Initech",
+    #             "jobTitle": "Data Analyst"
+    #         }
+    #     ],
+    #     "worker_description": "Jane Doe (894756)",
+    #     "responsibilitiesAndAchievements": "Developed and maintained scalable software solutions. Collaborated with cross-functional teams to define, design, and ship new features. Ensured the performance, quality, and responsiveness of applications. Identified and corrected bottlenecks and fixed bugs.",
+    #     "company": "Northrop Grumman",
+    #     "jobTitle": "Mid-Level Software Engineer",
+    #     "bsdl_metadata_file_path": "\\/path\\/to\\/metadata\\/file",
+    #     "bsdl_metadata_file_name": "RAASDW_WORKER_CERTIFICATIONS_REPORT.csv",
+    #     "bsdl_metadata_file_size": 8453085,
+    #     "bsdl_metadata_file_path": "\\/path\\/to\\/metadata\\/file",
+    #     "bsdl_metadata_file_name": "RAASDW_WORKER_CERTIFICATIONS_REPORT.csv",
+    #     "bsdl_metadata_file_size": 8453085,
+    #     "bsdl_metadata_file_modification_time": "00:16.0",
+    #     "bsdl_date_loaded": "3\\/29\\/2023",
+    #     "bsdl_time_loaded": "00:20.3",
+    #     "required_role": "Research Scientist",
+    #     "role_requirements": [
+    #         {
+    #             "requirement": "NWP focus: Must act as the primary point-of-contact for the development of operational global NWP systems"
+    #         },
+    #         {
+    #             "requirement": "MAP focus: Must act as the primary point-of-contact for METOC applications development including web-based applications and climatology applications"
+    #         }
+    #     ],
+    #     "resume_requirements": [
+    #         {
+    #             "requirement": "Must be left-aligned"
+    #         }
+    #     ]
+    # })])
 
     response = client.chat.completions.create(
         model=deployment_name,
         messages=[
             {
                 "role": "system",
-                "content": f"""You are a Request for Proposal Role Matcher. Your job is to take in as input a JSON payload describing employees and a JSON payload
-                    describing a roles extracted from a Request for Propoal. Each node in the employee JSON will list the certifications they hold, their education,
-                    their skills, and their work history. The employee JSON will be in the following format: {json_form_employee_data}. You will check each node, 
-                    which represents an employee against all roles described in the roles JSON and determine which roles match the employee's details. The roles JSON
-                    will be in the following format {json_form_resume_requirements}. You must inspect each nodes of the roles JSON, where the requirements are stored
-                    in the rfp_staffing_requirements node. Each match must be constructed as a node and added to a JSON list and you must always and only return the
-                    matches as JSON in the following format ```{json_form_matches}``` where you are concatenating the two nodes together to return. If an employee
-                    has one node that matches the role, you must scan the employee data and find all nodes for that employee based on the employee_id and
-                    add all education information they have to the education JSON list and all certification information they have to the certifications JSON list.
-                    Ensure the JSON is properly formatted and does not contain any extra characters, malformed structures, and is properly encapsulated.
-                    """
+                'content': 'You are a helpful AI assistant that specialies in generating resumes for employees from a database of employee records.\nYou will be provided with a json object that contains the employee"s certifications, education, skills, and work history.\nThe json object will have the following keys: certifications, education, skills, and employment_history.\nEach value in the json object will be a tab separated string that contains the data for the respective category.\nHere is an example:\n{\n    "certifications": "employee_id\tcertification\tcertifier_or_issuer\tissue_date\texpiration_date\n894756\tPython\tOpenAI\t2020-01-01\t2025-01-01",\n    "education": "employee_id\thighest_degree\tschool_attended\tdegree\tfield_of_study\n894756\tMasters\tUniversity of California\tComputer Science\tData Science",\n    "skills": "emplid\tskill\n894756\tPython\n894756\tData Mining",\n    "employment_history": "employeeID\tworker_descriptor\tstartDate\tendDate\tresponsibilitiesAndAchievements\tcompany\tjobTitle\n894756\tJohn Doe (894756)\t2020-01-01\t\tManaged a team of data scientists\tOpenAI\tData Scientist",\n    "security_clearances": "emplid\tclearance_level\tclearance_type\tclearance_agency\tclearance_status\n894756\tSecret"\n}\n\nYou will also be provided a json that has information about a position"s requirements for education, certifications, experience, and security clearances.\nHere is an example:\n{"required_role": "Program Manager (Key Personnel)",\n "education": {"Degree": "M.S.",\n  "Field": ["Meteorology",\n   "Oceanography",\n   "Physical Science",\n   "Mathematics",\n   "Engineering"]},\n "certifications": [],\n "experience": [{"requirement": "Must have current knowledge and demonstrated experience with Navy METOC operations, operational systems, applications and requirements"},\n  {"requirement": "Must have at a minimum 5 years of demonstrated experience managing scientific, engineering, computing, and technical personnel working on Numerical Weather Prediction (NWP) and METOC applications development projects"}],\n "security_clearance": []}\n\nYour task it to generate a json object that contains a resume for the employee that satisfies the requirements for the position.\nThe json should have the following format:\n{\n"name": The name of the employee. Do not include the employee id in the name.,\n"employee_id": The employee\'s id.,\n"professional summary": This should be a string that summarizes the employee\'s professional experience. This summary should emphasize the employee\'s qualifications for the position.,\n"key competencies": This should be a list of strings from the employee\'s skills. Include only the skills that are relevant to the position.,\n"education": This should be a list of strings in the format "Degree earned, Field of study, School Attended, Date of graduation",\n"certifications": This should be a list of strings from the employee\'s certifications,\n"relevant_experience": This should be a list of strings from the employment_history\'s responsibilitiesAndAchievements that match the experience requirements. Do not include employment history that is not relevant to the position,\n"employment_history": This should be a list of strings in the format "Company, Title, Start Date - End Date",\n"years_of_experience": The total number of years the employee has worked in the field. This should be calculated from the employment_history\'s startDate and endDate,\n"years_of_relevant_experience": The total number of years the employee has worked in a relevant position. This should be calculated from the employment_history\'s startDate and endDate,\n"security_clearances": This should be a list of strings from the security_clearances,\n"\n}\nDo not include information you do not know. Do not include information about the employee that is not provided in the employee data.\nYour response should be in json format and include only a json.'
             },
             {
                 "role": "user",
-                "content": f"""Look through each employee in the given employee data: {employee_data}\n\n and find roles from this data: {staffing_data}\n\n which match the employees certifications."""
+                "content": f"""Generate a resume using the following employee data employee data: {employee_data}\n\n and find roles from this data: {staffing_data}\n\n which match the employees certifications."""
             }
         ],
         max_tokens=4000,
@@ -478,8 +468,53 @@ def create_resume(json_matches):
     # Load the in-memory byte stream into python-docx
     document = Document(byte_stream)
 
+    name = json_matches['name']
+    education = json_matches["education"]
+    key_competencies = json_matches["key competencies"]
+    certifications = json_matches["certifications"]
+    professional_summary = json_matches["professional_summary"]
+        
     for paragraph in document.paragraphs:
-        print(paragraph.text)
+        if 'Name, Credential (if any)' in paragraph.text:
+            paragraph.text = paragraph.text.replace('Name, Credential (if any)', name)
+            paragraph.text += "\n" + professional_summary
+            
+        for table in document.tables:
+            for row in table.rows:
+                # Check the leftmost cell (first cell) for the search text
+                left_cell = row.cells[0]
+                for paragraph in left_cell.paragraphs:
+                    if 'Key Competencies' in paragraph.text:
+                        # If found, set the text in the rightmost cell
+                        right_cell = row.cells[-1]
+                        for right_paragraph in right_cell.paragraphs:
+                            key_competencies_str = "\n".join(key_competencies)
+                            right_paragraph.text = key_competencies_str
+                            break
+
+                    if 'Education' in paragraph.text:
+                        # If found, set the text in the rightmost cell
+                        right_cell = row.cells[-1]
+                        for right_paragraph in right_cell.paragraphs:
+                            education_str = "\n".join(education)
+                            right_paragraph.text = education_str
+                            break
+
+                    if 'Training & Certifications' in paragraph.text:
+                        # If found, set the text in the rightmost cell
+                        right_cell = row.cells[-1]
+                        for right_paragraph in right_cell.paragraphs:
+                            certifications_str = "\n".join(certifications)
+                            right_paragraph.text = certifications_str
+                            break
+
+    # Save the updated document to a new in-memory byte stream
+    byte_stream = io.BytesIO()
+    document.save(byte_stream)
+    byte_stream.seek(0)
+
+    blob_client = container_client.get_blob_client(name + "_Resume.docx")
+    blob_client.upload_blob(byte_stream, overwrite=True)
 
 # get employee data, assumes a detailed search
 employee_data_json = get_employee_data()
@@ -491,4 +526,6 @@ grouped_staffing_data = cosmos_db_service.get_grouped_rfp_staffing_extract()
 json_matches = generate_resume_content(employee_data_json, grouped_staffing_data)
 
 if (json_matches):
+
+    # need a for each here
     create_resume(json_matches)
