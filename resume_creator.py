@@ -265,17 +265,40 @@ def generate_resume_content(employee_data, staffing_data):
 
     json_form_matches=str([json.dumps({
         "employee_id": "111",
-        "latest_entry_date":"00:00:0",
+        "latest_entry_date": "00:00:0",
         "latestcipolydate": "00:00:0",
         "latestfspolydate": "00:00:0",
-        "certification": "AWS Certified Developer - Associate",
-        "certifier_or_issuer": "Amazon Web Services",
-        "issue_date": "5\\/22\\/2021",
-        "expiration_date": "5\\/22\\/2024",
-        "highest_degree": "Bachelors",
-        "school_attended": "University of California, Berkeley",
-        "field_of_study": "Computer Science",
-        "skill": "Python",
+        "certifications": [
+            {
+                "certification": "AWS Certified Developer - Associate",
+                "certifier_or_issuer": "Amazon Web Services",
+                "issue_date": "5\\/22\\/2021",
+                "expiration_date": "5\\/22\\/2024"
+            }
+        ],
+        "education": [
+            {
+                "highest_degree": "Bachelors",
+                "school_attended": "University of California, Berkeley",
+                "school_location": "United States of America",
+                "degree": "Bachelors Degree",
+                "field_of_study": "Computer Science"
+            }
+        ],
+        "skills": [
+            {
+                "skill": "Python"
+            }
+        ],
+        "work_history": [
+            {
+                "startDate": "2019-01-10",
+                "endDate": "2021-03-14",
+                "responsibilitiesAndAchievements": "Managed multiple large-scale projects, ensuring the application of agile methodologies. Oversaw project lifecycles from initiation to closure, ensuring stakeholder satisfaction. Implemented risk management strategies that reduced project risks by 30%.",
+                "company": "Tech Solutions Inc.",
+                "jobTitle": "Senior Project Manager"
+            }
+        ],
         "worker_description": "John Doe (894756)",
         "responsibilitiesAndAchievements": "Developed and maintained scalable software solutions. Collaborated with cross-functional teams to define, design, and ship new features. Ensured the performance, quality, and responsiveness of applications. Identified and corrected bottlenecks and fixed bugs.",
         "company": "Booz Allen Hamilton",
@@ -305,14 +328,38 @@ def generate_resume_content(employee_data, staffing_data):
         "latest_entry_date": "00:00.0",
         "latestcipolydate": "00:00:0",
         "latestfspolydate": "00:00:0",
-        "certification": "Oracle Certified Professional, Java SE 8 Programmer",
-        "certifier_or_issuer": "Oracle",
-        "issue_date": "11\\/15\\/2019",
-        "expiration_date": "00:00:0",
-        "highest_degree": "Bachelors",
-        "school_attended": "University of Michigan",
-        "field_of_study": "Computer Science",
-        "skill": ".NET",
+        "certifications": [
+            {
+                "certification": "Certified Information Systems Security Professional (CISSP)",
+                "certifier_or_issuer": "(ISC)\\u00b2",
+                "issue_date": "11\\/15\\/2018",
+                "expiration_date": "11\\/15\\/2023"
+            }
+        ],
+        "education": [
+            {
+            "highest_degree": "Masters",
+            "school_attended": "University of California, Berkeley",
+            "school_location": "United States of America",
+            "degree": "Master's Degree",
+            "field_of_study": "Project Management"
+            }
+        ],
+        "skills": [
+            {
+                "skill": "Project Management",
+                "skill": "Agile Methodologies"
+            }
+        ],
+        "work_history": [
+            {
+                "startDate": "2019-03-01",
+                "endDate": "2021-04-30",
+                "responsibilitiesAndAchievements": "As a Data Analyst at Initech, my role involved extensive data cleaning, analysis, and visualization to support marketing strategies. I developed a series of predictive models that enhanced customer targeting by 15% and was recognized for my innovative use of visualization tools to convey complex data insights to non-technical stakeholders, which significantly improved project outcomes.",
+                "company": "Initech",
+                "jobTitle": "Data Analyst"
+            }
+        ],
         "worker_description": "Jane Doe (894756)",
         "responsibilitiesAndAchievements": "Developed and maintained scalable software solutions. Collaborated with cross-functional teams to define, design, and ship new features. Ensured the performance, quality, and responsiveness of applications. Identified and corrected bottlenecks and fixed bugs.",
         "company": "Northrop Grumman",
@@ -353,7 +400,9 @@ def generate_resume_content(employee_data, staffing_data):
                     which represents an employee against all roles described in the roles JSON and determine which roles match the employee's details. The roles JSON
                     will be in the following format {json_form_resume_requirements}. You must inspect each nodes of the roles JSON, where the requirements are stored
                     in the rfp_staffing_requirements node. Each match must be constructed as a node and added to a JSON list and you must always and only return the
-                    matches as JSON in the following format ```{json_form_matches}``` where you are concatenating the two nodes together to return.
+                    matches as JSON in the following format ```{json_form_matches}``` where you are concatenating the two nodes together to return. If an employee
+                    has one node that matches the role, you must scan the employee data and find all nodes for that employee based on the employee_id and
+                    add all education information they have to the education JSON list and all certification information they have to the certifications JSON list.
                     Ensure the JSON is properly formatted and does not contain any extra characters, malformed structures, and is properly encapsulated.
                     """
             },
