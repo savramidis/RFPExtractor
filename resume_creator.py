@@ -398,7 +398,7 @@ def generate_resume_content(employee_data, staffing_data):
             },
             {
                 "role": "user",
-                "content": f"""Generate a resume using the following employee data employee data: {employee_data}\n\n and find roles from this data: {staffing_data}\n\n which match the employees certifications."""
+                "content": f"""Generate a list of candidate resumes using the following employee data employee data: {employee_data}\n\n and find roles from this data: {staffing_data}\n\n which match the employees certifications."""
             }
         ],
         max_tokens=4000,
