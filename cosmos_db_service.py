@@ -57,6 +57,25 @@ class cosmos_db_service:
             logging.error(f"Failed to query items: {e.message}")
             raise
 
+    def get_all_by_rfp_id(self, rfp_id):
+        if self.container is None:
+            raise ValueError("The CosmosDbService has not been initialized. Call initialize() before using this method.")
+        try:
+           # Use a parameterized query to safely pass the rfp_id
+            query = "SELECT * FROM c WHERE c.rfp_id = @rfp_id"
+            parameters = [{"name": "@rfp_id", "value": rfp_id}]
+        
+            items = list(self.container.query_items(
+                query=query,
+                parameters=parameters,
+                enable_cross_partition_query=True
+            ))
+
+            return items
+        except exceptions.CosmosHttpResponseError as e:
+            logging.error(f"Failed to query items: {e.message}")
+            raise
+
     def update_rfp_staffing_extract_status(self, item_id, rfp_id, new_value):
         if self.container is None:
             raise ValueError("The CosmosDbService has not been initialized. Call initialize() before using this method.")
