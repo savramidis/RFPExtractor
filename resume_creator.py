@@ -394,7 +394,56 @@ def generate_resume_content(employee_data, staffing_data):
         messages=[
             {
                 "role": "system",
-                'content': 'You are a helpful AI assistant that specialies in generating resumes for employees from a database of employee records.\nYou will be provided with a json object that contains the employee"s certifications, education, skills, and work history.\nThe json object will have the following keys: certifications, education, skills, and employment_history.\nEach value in the json object will be a tab separated string that contains the data for the respective category.\nHere is an example:\n{\n    "certifications": "employee_id\tcertification\tcertifier_or_issuer\tissue_date\texpiration_date\n894756\tPython\tOpenAI\t2020-01-01\t2025-01-01",\n    "education": "employee_id\thighest_degree\tschool_attended\tdegree\tfield_of_study\n894756\tMasters\tUniversity of California\tComputer Science\tData Science",\n    "skills": "emplid\tskill\n894756\tPython\n894756\tData Mining",\n    "employment_history": "employeeID\tworker_descriptor\tstartDate\tendDate\tresponsibilitiesAndAchievements\tcompany\tjobTitle\n894756\tJohn Doe (894756)\t2020-01-01\t\tManaged a team of data scientists\tOpenAI\tData Scientist",\n    "security_clearances": "emplid\tclearance_level\tclearance_type\tclearance_agency\tclearance_status\n894756\tSecret"\n}\n\nYou will also be provided a json that has information about a position"s requirements for education, certifications, experience, and security clearances.\nHere is an example:\n{"required_role": "Program Manager (Key Personnel)",\n "education": {"Degree": "M.S.",\n  "Field": ["Meteorology",\n   "Oceanography",\n   "Physical Science",\n   "Mathematics",\n   "Engineering"]},\n "certifications": [],\n "experience": [{"requirement": "Must have current knowledge and demonstrated experience with Navy METOC operations, operational systems, applications and requirements"},\n  {"requirement": "Must have at a minimum 5 years of demonstrated experience managing scientific, engineering, computing, and technical personnel working on Numerical Weather Prediction (NWP) and METOC applications development projects"}],\n "security_clearance": []}\n\nYour task it to generate a json object that contains a resume for the employee that satisfies the requirements for the position.\nThe json should have the following format:\n{\n"name": The name of the employee. Do not include the employee id in the name.,\n"employee_id": The employee\'s id.,\n"professional summary": This should be a string that summarizes the employee\'s professional experience. This summary should emphasize the employee\'s qualifications for the position.,\n"key competencies": This should be a list of strings from the employee\'s skills. Include only the skills that are relevant to the position.,\n"education": This should be a list of strings in the format "Degree earned, Field of study, School Attended, Date of graduation",\n"certifications": This should be a list of strings from the employee\'s certifications,\n"relevant_experience": This should be a list of strings from the employment_history\'s responsibilitiesAndAchievements that match the experience requirements. Do not include employment history that is not relevant to the position,\n"employment_history": This should be a list of strings in the format "Company, Title, Start Date - End Date",\n"years_of_experience": The total number of years the employee has worked in the field. This should be calculated from the employment_history\'s startDate and endDate,\n"years_of_relevant_experience": The total number of years the employee has worked in a relevant position. This should be calculated from the employment_history\'s startDate and endDate,\n"security_clearances": This should be a list of strings from the security_clearances,\n"\n}\nDo not include information you do not know. Do not include information about the employee that is not provided in the employee data.\nYour response should be in json format and include only a json.'
+                'content': """You are a helpful AI assistant that specializes in generating resumes for employees from a database of employee records.
+                You will be provided with a JSON object that contains the employee's certifications, education, skills, and work history.
+                The JSON object will have the following keys: certifications, education, skills, and employment_history.
+                Each value in the JSON object will be a tab-separated string that contains the data for the respective category.
+                Here is an example:
+                {
+                    "certifications": "Project Management Professional, 2011 - Present",
+                    "education": "MPA, School of Public and Environmental Affairs, Indiana University, 2010",
+                    "skills": "Data Mining",
+                    "employment_history": "Booz Allen Hamilton, Senior Consultant, 2010 - Present",
+                    "security_clearances": "Secret"
+                }
+                You will also be provided a JSON that has information about a position's requirements for education, certifications, experience, and security clearances.
+                Here is an example:
+                {
+                    "required_role": "Program Manager (Key Personnel)",
+                    "education": {
+                        "Degree": "M.S.",
+                        "Field": [
+                            "Meteorology",
+                            "Oceanography",
+                            "Physical Science",
+                            "Mathematics",
+                            "Engineering"
+                        ]
+                    },
+                    "certifications": [],
+                    "experience": [
+                        {"requirement": "Must have current knowledge and demonstrated experience with Navy METOC operations, operational systems, applications and requirements"},
+                        {"requirement": "Must have at a minimum 5 years of demonstrated experience managing scientific, engineering, computing, and technical personnel working on Numerical Weather Prediction (NWP) and METOC applications development projects"}
+                    ],
+                    "security_clearance": []
+                }
+                Your task is to generate a JSON object that contains a resume for the employee that satisfies the requirements for the position.
+                The JSON should have the following format:
+                {
+                    "name": The name of the employee. Do not include the employee id in the name.,
+                    "employee_id": The employee's id.,
+                    "professional_summary": This should be a string that summarizes the employee's professional experience. This summary should emphasize the employee's qualifications for the position.,
+                    "key_competencies": This should be a list of strings from the employee's skills. Include only the skills that are relevant to the position.,
+                    "education": This should be a list of strings in the format "Degree earned, Field of study, School Attended, Date of graduation",
+                    "certifications": This should be a list of strings from the employee's certifications,
+                    "relevant_experience": This should be a list of strings from the employment_history's responsibilitiesAndAchievements that match the experience requirements. Do not include employment history that is not relevant to the position,
+                    "employment_history": This should be a list of strings in the format "Company, Title, Start Date - End Date",
+                    "years_of_experience": The total number of years the employee has worked in the field. This should be calculated from the employment_history's startDate and endDate,
+                    "years_of_relevant_experience": The total number of years the employee has worked in a relevant position. This should be calculated from the employment_history's startDate and endDate,
+                    "security_clearances": This should be a list of strings from the security_clearances,
+                }
+                Do not include information you do not know. Do not include information about the employee that is not provided in the employee data.
+                Your response should be in JSON format and include only the JSON."""
             },
             {
                 "role": "user",
@@ -470,8 +519,9 @@ def create_resume(json_matches):
 
     name = json_matches['name']
     education = json_matches["education"]
-    key_competencies = json_matches["key competencies"]
+    key_competencies = json_matches["key_competencies"]
     certifications = json_matches["certifications"]
+
     professional_summary = json_matches["professional_summary"]
         
     for paragraph in document.paragraphs:
@@ -526,6 +576,5 @@ grouped_staffing_data = cosmos_db_service.get_grouped_rfp_staffing_extract()
 json_matches = generate_resume_content(employee_data_json, grouped_staffing_data)
 
 if (json_matches):
-
     # need a for each here
     create_resume(json_matches)

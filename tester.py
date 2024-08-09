@@ -5,22 +5,46 @@ from datetime import datetime, timezone
 
 rfp_id = str(uuid.uuid4())
 currentDate = str(datetime.now(timezone.utc))
-id = str(uuid.uuid4())
 
-single_document = {
-            "id": id,
+first_document = {
+            "id": str(uuid.uuid4()),
             "rfp_id": rfp_id,
             "doc_type": "rfp_staffing_extract",
             "extract_date": currentDate,
             "status": "rfp_extracted",
-            "blob_name": "doc.pdf",
+            "blob_name": "doc1.pdf",
             "rfp_staffing_requirements": "TEST1"
+        }
+
+second_document = {
+            "id": str(uuid.uuid4()),
+            "rfp_id": rfp_id,
+            "doc_type": "rfp_staffing_extract",
+            "extract_date": currentDate,
+            "status": "rfp_extracted",
+            "blob_name": "doc2.pdf",
+            "rfp_staffing_requirements": "TEST2"
+        }
+
+third_document = {
+            "id": str(uuid.uuid4()),
+            "rfp_id": rfp_id,
+            "doc_type": "employee_data",
+            "extract_date": currentDate
         }
 
 cosmos_db_service = cosmos_db_service()
 cosmos_db_service.initialize()
-created_item = cosmos_db_service.insert_rfp_staffing_extract(single_document)
+created_item = cosmos_db_service.insert_rfp_staffing_extract(first_document)
 print(created_item)
 
-updated_item = cosmos_db_service.update_rfp_staffing_extract_status(id, rfp_id, "resume_created")
-print(updated_item)
+created_item = cosmos_db_service.insert_rfp_staffing_extract(second_document)
+print(created_item)
+
+created_item = cosmos_db_service.insert_rfp_staffing_extract(third_document)
+print(created_item)
+
+items = cosmos_db_service.get_all_by_rfp_id(rfp_id)
+
+for item in items:
+    print(item)
