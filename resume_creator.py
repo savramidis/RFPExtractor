@@ -427,7 +427,7 @@ def generate_resume_content(employee_data, staffing_data):
                     ],
                     "security_clearance": []
                 }
-                Your task is to generate a JSON object that contains a resume for the employee that satisfies the requirements for the position.
+                Your task is to generate a JSON object that contains a resume for each employee that satisfies the requirements for the given positions. This should be a list of JSON objects where each item in the list represents a candidate resume. YOu s
                 The JSON should have the following format:
                 {
                     "name": The name of the employee. Do not include the employee id in the name.,
