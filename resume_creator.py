@@ -1,5 +1,4 @@
 import os
-import io
 import pandas as pd
 import json
 from openai import AzureOpenAI
@@ -16,9 +15,7 @@ load_dotenv()
 api_key = os.getenv("AZURE_OPENAI_API_KEY")
 api_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
 deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
-resume_template = os.getenv("RESUME_TEMPLATE")
-connection_string = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
-container_name = os.getenv("AZURE_STORAGE_CONTAINER_NAME")
+local_resume_folder = os.getenv("LOCAL_RESUME_FOLDER")
 
 client = AzureOpenAI(
     api_key=api_key,
@@ -29,51 +26,6 @@ client = AzureOpenAI(
 
 cosmos_db_service = cosmos_db_service()
 cosmos_db_service.initialize()
-
-# Initialize BlobServiceClient
-blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-
-# Get a client to interact with the container
-container_client = blob_service_client.get_container_client(container_name)
-
-# def get_employee_data():
-#     # Initialize the BlobServiceClient
-#     blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-#     container_client = blob_service_client.get_container_client(container_name)
-
-#     # List all blobs in the specified folder
-#     blob_list = container_client.list_blobs(name_starts_with="employee_data")
-    
-#     # Allowed file extensions
-#     allowed_extensions = {'.csv'}
-    
-#     # Dictionary to hold the JSON data
-#     json_data = {}
-
-#     for blob in blob_list:
-#         # Check file extension
-#         _, file_extension = os.path.splitext(blob.name)
-#         if file_extension.lower() not in allowed_extensions:
-#             print(f"Skipping blob: {blob.name} (unsupported file type)")
-#             continue
-
-#         print(f"Processing blob: {blob.name}")
-
-#         # Create a BlobClient for the specific blob
-#         blob_client = container_client.get_blob_client(blob)
-
-#         # Download the blob's content
-#         download_stream = blob_client.download_blob()
-#         file_content = download_stream.readall()
-
-#         # Convert the file content to a pandas DataFrame
-#         file_name = os.path.basename(blob.name)
-#         df = pd.read_csv(io.StringIO(file_content.decode('utf-8')))
-
-#         # Convert the DataFrame to JSON and store it in the dictionary
-#         json_data[file_name] = df.to_json(orient='records')
-
-#     return json_data
 
 def extract_staffing_requirements(documents: List[Dict]) -> Dict[str, List[Dict]]:
     role_requirements = {}
@@ -201,18 +153,12 @@ def generate_resume_content(employee_data, staffing_data):
 def create_resume(json_matches):
     print(json.dumps(json_matches, indent=4))
 
-    # Create the BlobServiceClient object which will be used to create a container client
-    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+    with open('moqdata/ResumeTemplate.docx', 'rb') as file:
+        byte_stream = file.read()
 
-    # Create a blob client using the blob name and container name
-    blob_client = blob_service_client.get_blob_client(container=container_name, blob=resume_template)
+    byte_stream_io = BytesIO(byte_stream)
 
-    # Download the blob to an in-memory byte stream
-    blob_data = blob_client.download_blob().readall()
-    byte_stream = BytesIO(blob_data)
-
-    # Load the in-memory byte stream into python-docx
-    document = Document(byte_stream)
+    document = Document(byte_stream_io)
 
     name = json_matches['name']
     education = json_matches["education"]
@@ -222,8 +168,8 @@ def create_resume(json_matches):
     professional_summary = json_matches["professional_summary"]
      
     for paragraph in document.paragraphs:
-        if 'Name, Credential (if any)' in paragraph.text:
-            paragraph.text = paragraph.text.replace('Name, Credential (if any)', name)
+        if 'Name' in paragraph.text:
+            paragraph.text = paragraph.text.replace('Name', name)
             paragraph.text += "\n" + professional_summary
             
         for table in document.tables:
@@ -255,20 +201,14 @@ def create_resume(json_matches):
                             right_paragraph.text = certifications_str
                             break
 
-    # Save the updated document to a new in-memory byte stream
-    byte_stream = io.BytesIO()
-    document.save(byte_stream)
-    byte_stream.seek(0)
-
-    resume_name = name + "_Resume.docx"
-    blob_client = container_client.get_blob_client(resume_name)
-    blob_client.upload_blob(byte_stream, overwrite=True)
-    print(f"Resume created: {resume_name}")
+    resume_name_path =local_resume_folder + "\\" + name + "_Resume.docx"
+    document.save(resume_name_path)
+    print(f"Resume created: {resume_name_path}")
 
 # get employee data, assumes a detailed search
 # right now we are loading moq data from a json file
 employee_data_json = None
-with open('employeeData.json', 'r') as file:
+with open('moqdata/employeeData.json', 'r') as file:
     employee_data_json = json.load(file)
     #print(employee_data_json)
 
