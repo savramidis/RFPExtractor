@@ -8,17 +8,17 @@ from typing import List, Dict
 from docx import Document
 from cosmos_db_service import cosmos_db_service
 from dotenv import load_dotenv
-from azure.storage.blob import BlobServiceClient
 from io import BytesIO
 
 # Load environment variables from the .env file
 load_dotenv()
 
-# Get the OpenAI key and endpoint from environment variables
 api_key = os.getenv("AZURE_OPENAI_API_KEY")
 api_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
 deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
 resume_template = os.getenv("RESUME_TEMPLATE")
+connection_string = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
+container_name = os.getenv("AZURE_STORAGE_CONTAINER_NAME")
 
 client = AzureOpenAI(
     api_key=api_key,
@@ -26,11 +26,6 @@ client = AzureOpenAI(
     api_version="2024-02-15-preview",
     azure_endpoint=api_endpoint
 )
-
-# Get environment variables
-connection_string = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
-container_name = os.getenv("AZURE_STORAGE_CONTAINER_NAME")
-folder_path = "employee_data"
 
 cosmos_db_service = cosmos_db_service()
 cosmos_db_service.initialize()
@@ -41,44 +36,44 @@ blob_service_client = BlobServiceClient.from_connection_string(connection_string
 # Get a client to interact with the container
 container_client = blob_service_client.get_container_client(container_name)
 
-def get_employee_data():
-    # Initialize the BlobServiceClient
-    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-    container_client = blob_service_client.get_container_client(container_name)
+# def get_employee_data():
+#     # Initialize the BlobServiceClient
+#     blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+#     container_client = blob_service_client.get_container_client(container_name)
 
-    # List all blobs in the specified folder
-    blob_list = container_client.list_blobs(name_starts_with=folder_path)
+#     # List all blobs in the specified folder
+#     blob_list = container_client.list_blobs(name_starts_with="employee_data")
     
-    # Allowed file extensions
-    allowed_extensions = {'.csv'}
+#     # Allowed file extensions
+#     allowed_extensions = {'.csv'}
     
-    # Dictionary to hold the JSON data
-    json_data = {}
+#     # Dictionary to hold the JSON data
+#     json_data = {}
 
-    for blob in blob_list:
-        # Check file extension
-        _, file_extension = os.path.splitext(blob.name)
-        if file_extension.lower() not in allowed_extensions:
-            print(f"Skipping blob: {blob.name} (unsupported file type)")
-            continue
+#     for blob in blob_list:
+#         # Check file extension
+#         _, file_extension = os.path.splitext(blob.name)
+#         if file_extension.lower() not in allowed_extensions:
+#             print(f"Skipping blob: {blob.name} (unsupported file type)")
+#             continue
 
-        print(f"Processing blob: {blob.name}")
+#         print(f"Processing blob: {blob.name}")
 
-        # Create a BlobClient for the specific blob
-        blob_client = container_client.get_blob_client(blob)
+#         # Create a BlobClient for the specific blob
+#         blob_client = container_client.get_blob_client(blob)
 
-        # Download the blob's content
-        download_stream = blob_client.download_blob()
-        file_content = download_stream.readall()
+#         # Download the blob's content
+#         download_stream = blob_client.download_blob()
+#         file_content = download_stream.readall()
 
-        # Convert the file content to a pandas DataFrame
-        file_name = os.path.basename(blob.name)
-        df = pd.read_csv(io.StringIO(file_content.decode('utf-8')))
+#         # Convert the file content to a pandas DataFrame
+#         file_name = os.path.basename(blob.name)
+#         df = pd.read_csv(io.StringIO(file_content.decode('utf-8')))
 
-        # Convert the DataFrame to JSON and store it in the dictionary
-        json_data[file_name] = df.to_json(orient='records')
+#         # Convert the DataFrame to JSON and store it in the dictionary
+#         json_data[file_name] = df.to_json(orient='records')
 
-    return json_data
+#     return json_data
 
 def extract_staffing_requirements(documents: List[Dict]) -> Dict[str, List[Dict]]:
     role_requirements = {}
@@ -225,7 +220,7 @@ def create_resume(json_matches):
     certifications = json_matches["certifications"]
 
     professional_summary = json_matches["professional_summary"]
-        
+     
     for paragraph in document.paragraphs:
         if 'Name, Credential (if any)' in paragraph.text:
             paragraph.text = paragraph.text.replace('Name, Credential (if any)', name)
@@ -265,11 +260,17 @@ def create_resume(json_matches):
     document.save(byte_stream)
     byte_stream.seek(0)
 
-    blob_client = container_client.get_blob_client(name + "_Resume.docx")
+    resume_name = name + "_Resume.docx"
+    blob_client = container_client.get_blob_client(resume_name)
     blob_client.upload_blob(byte_stream, overwrite=True)
+    print(f"Resume created: {resume_name}")
 
 # get employee data, assumes a detailed search
-employee_data_json = get_employee_data()
+# right now we are loading moq data from a json file
+employee_data_json = None
+with open('employeeData.json', 'r') as file:
+    employee_data_json = json.load(file)
+    #print(employee_data_json)
 
 # get grouped rfp staffing data
 grouped_staffing_data = cosmos_db_service.get_grouped_rfp_staffing_extract()

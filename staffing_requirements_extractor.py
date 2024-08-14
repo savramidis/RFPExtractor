@@ -1,5 +1,4 @@
 import os
-import requests
 import json
 from openai import AzureOpenAI
 from dotenv import load_dotenv

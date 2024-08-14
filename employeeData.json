@@ -1,0 +1,227 @@
+[
+    {
+        "employee_id": 100001,
+        "name": "John Doe",
+        "skills": [
+            "Python",
+            "Data Science",
+            "SQL",
+            "Data Modeling",
+            "Object Oriented Programming"
+        ],
+        "education": [
+            {
+                "degree": "Bachelors in Computer Science",
+                "institution": "University of California, Berkeley",
+                "year_of_completion": 2016
+            },
+            {
+                "degree": "Masters in Data Science",
+                "institution": "Stanford University",
+                "year_of_completion": 2018
+            }
+        ],
+        "certifications": [
+            {
+                "name": "PMP",
+                "issuer": "Project Management Institute",
+                "issue_date": "2020-05-22",
+                "expiration_date": "2023-05-22"
+            },
+            {
+                "name": "Certified ScrumMaster",
+                "issuer": "Scrum Alliance",
+                "issue_date": "2019-11-07",
+                "expiration_date": "2022-11-07"
+            }
+        ],
+        "work_history": [
+            {
+                "company": "Tech Solutions Inc.",
+                "role": "Data Scientist",
+                "start_date": "2018-06-01",
+                "end_date": "2020-08-31"
+            },
+            {
+                "company": "Innovative Analytics",
+                "role": "Senior Data Scientist",
+                "start_date": "2020-09-01",
+                "end_date": "Present"
+            }
+        ]
+    },
+    {
+        "employee_id": 100002,
+        "name": "Jane Smith",
+        "skills": [
+            ".NET",
+            "C#",
+            "SQL",
+            "Object Oriented Programming",
+            "Data Modeling"
+        ],
+        "education": [
+            {
+                "degree": "Bachelors in Computer Engineering",
+                "institution": "Massachusetts Institute of Technology",
+                "year_of_completion": 2015
+            },
+            {
+                "degree": "Masters in Software Engineering",
+                "institution": "Harvard University",
+                "year_of_completion": 2017
+            }
+        ],
+        "certifications": [
+            {
+                "name": "PMP",
+                "issuer": "Project Management Institute",
+                "issue_date": "2019-03-15",
+                "expiration_date": "2022-03-15"
+            },
+            {
+                "name": "Certified ScrumMaster",
+                "issuer": "Scrum Alliance",
+                "issue_date": "2018-06-20",
+                "expiration_date": "2021-06-20"
+            }
+        ],
+        "work_history": [
+            {
+                "company": "WebDev Co.",
+                "role": "Software Developer",
+                "start_date": "2017-07-01",
+                "end_date": "2019-12-31"
+            },
+            {
+                "company": "NextGen Tech",
+                "role": "Lead Software Engineer",
+                "start_date": "2020-01-01",
+                "end_date": "Present"
+            }
+        ]
+    },
+    {
+        "employee_id": 100003,
+        "name": "Robert Johnson",
+        "skills": [
+            "Python",
+            "SQL",
+            "Data Science",
+            "Data Modeling"
+        ],
+        "education": [
+            {
+                "degree": "Bachelors in Information Technology",
+                "institution": "University of Texas at Austin",
+                "year_of_completion": 2014
+            },
+            {
+                "degree": "Masters in Data Science",
+                "institution": "New York University",
+                "year_of_completion": 2016
+            }
+        ],
+        "certifications": [
+            {
+                "name": "Certified ScrumMaster",
+                "issuer": "Scrum Alliance",
+                "issue_date": "2020-01-10",
+                "expiration_date": "2023-01-10"
+            }
+        ],
+        "work_history": [
+            {
+                "company": "Data Innovations",
+                "role": "Data Analyst",
+                "start_date": "2016-07-01",
+                "end_date": "2018-09-30"
+            },
+            {
+                "company": "AI Solutions",
+                "role": "Data Scientist",
+                "start_date": "2018-10-01",
+                "end_date": "Present"
+            }
+        ]
+    },
+    {
+        "employee_id": 100004,
+        "name": "Emily Davis",
+        "skills": [
+            "C#",
+            ".NET",
+            "Object Oriented Programming",
+            "Data Modeling"
+        ],
+        "education": [
+            {
+                "degree": "Bachelors in Computer Science",
+                "institution": "Carnegie Mellon University",
+                "year_of_completion": 2013
+            }
+        ],
+        "certifications": [
+            {
+                "name": "PMP",
+                "issuer": "Project Management Institute",
+                "issue_date": "2018-08-15",
+                "expiration_date": "2021-08-15"
+            }
+        ],
+        "work_history": [
+            {
+                "company": "CodeWorks",
+                "role": "Software Developer",
+                "start_date": "2013-09-01",
+                "end_date": "2016-11-30"
+            },
+            {
+                "company": "Tech Innovators",
+                "role": "Senior Software Engineer",
+                "start_date": "2016-12-01",
+                "end_date": "Present"
+            }
+        ]
+    },
+    {
+        "employee_id": 100005,
+        "name": "Michael Brown",
+        "skills": [
+            "Python",
+            "Data Science",
+            "SQL",
+            "Data Modeling",
+            "Object Oriented Programming"
+        ],
+        "education": [
+            {
+                "degree": "Bachelors in Computer Science",
+                "institution": "University of Michigan",
+                "year_of_completion": 2012
+            }
+        ],
+        "certifications": [
+            {
+                "name": "Certified ScrumMaster",
+                "issuer": "Scrum Alliance",
+                "issue_date": "2019-10-25",
+                "expiration_date": "2022-10-25"
+            }
+        ],
+        "work_history": [
+            {
+                "company": "DataXpert",
+                "role": "Data Analyst",
+                "start_date": "2012-07-01",
+                "end_date": "2015-08-31"
+            },
+            {
+                "company": "AI Insight",
+                "role": "Data Scientist",
+                "start_date": "2015-09-01",
+                "end_date": "Present"
+            }
+        ]
+    }
+]
