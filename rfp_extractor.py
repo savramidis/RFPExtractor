@@ -1,6 +1,5 @@
 import time
 import os
-import json
 import uuid
 from azure.storage.blob import BlobServiceClient, BlobClient
 from azure.ai.formrecognizer import DocumentAnalysisClient
@@ -52,18 +51,12 @@ role_requirements_set = set()
 resume_requirements_set = set()
 rfp_id = str(uuid.uuid4())
 
-# def extract_text_for_page(page):
-#    text = ""
-#    for line in page.lines:
-#        text += line.content + "\n"
-#    return text
-
 def analyze_document_with_retry(document_analysis_client, file_content, retries=5):
     attempt = 0
     while attempt < retries:
         try:
             poller = document_analysis_client.begin_analyze_document(
-                "prebuilt-layout",  # You can change this to other models like "prebuilt-invoice" or your custom model ID
+                "prebuilt-layout",
                 file_content
             )
             result = poller.result()
@@ -99,22 +92,12 @@ for blob in blob_list:
 
     extracted_info = extract_information_from_page(result.content)
 
-    # The following code is commented out as it is only used if we are chunking the RFP document
-    # Process the result and extract information from each page
-    # previous_page_text = ""
-    # for i, page in enumerate(result.pages):
-    #     current_page_text = extract_text_for_page(page)
-    #     combined_text = previous_page_text + current_page_text
-
-    #     Use OpenAI to extract Staffing Requirements from combined text of the current and previous page
-    #     extracted_info = extract_information_from_page(combined_text)
-
     if extracted_info:
         currentDate = str(datetime.now(timezone.utc))
 
         # Wrap the list into a single document
         single_document = {
-            "id": str(uuid.uuid4()),  # Generate a unique ID for the document
+            "id": str(uuid.uuid4()),
             "rfp_id": rfp_id,
             "doc_type": "rfp_staffing_extract",
             "extract_date": currentDate,
@@ -125,8 +108,5 @@ for blob in blob_list:
 
         created_item = cosmos_db_service.insert_rfp_staffing_extract(single_document)
         print(created_item)
-
-    #     Update previous_page_text. We need to do this to ensure that we don't miss any information that spans multiple pages
-    #     previous_page_text = current_page_text
 
 print(f"Finished processing all blobs.")
