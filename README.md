@@ -27,13 +27,13 @@ pip install -r requirements.txt
 ### Step 1
 
 - rfp_extractor.py
-  - gets RFPs from an Azure Blob Storage folder and uses Azure Document Intelligence to parse the RFP
-  - staffing_requirements_extractor.py makes a call to an Azure OpenAI gpt-4o model with full RFP and prompt to extract staffing requirements
-    - LLM result is stored in Cosmos DB
+  - gets all files related to an RFP from an Azure Blob Storage folder and uses Azure Document Intelligence to parse the RFP files
+  - staffing_requirements_extractor.py makes a call to a Azure OpenAI with full RFP and prompt to extract staffing requirements
+    - LLM result is stored in Cosmos DB with rfp_id as the partition key
 
 ### Step 2
 - resume_creator.py
   - queries Cosmos DB for the LLM result from step 1
   - gets moq employee data
-  - calls a Azure OpenAI gpt-4o model with prompt & data to generate a resume
+  - calls Azure OpenAI with prompt & data to generate a resume
   - data returned from the LLM is used to create a resume based on a template
