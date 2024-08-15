@@ -1,5 +1,5 @@
 # RFP Extractor
-
+Simple POC that extracts staffing requirements from a Request from a Proposal and creates a resume from a template.
 
 ## Required for local .env
 ## Configuration Settings
@@ -16,12 +16,24 @@
 ### AZURE_COSMOS_KEY
 ### AZURE_COSMOS_DATABASE_NAME
 ### AZURE_COSMOS_CONTAINER_NAME
+### LOCAL_RESUME_FOLDER
 
-## How to Run
+## Set Up
 Set all your environment variables
 
 pip install -r requirements.txt
 
-rfp_extractor.py reads from an Azure Blob Storage folder and uses Azure Document Intelligence to parse the RFP.
+## How to Run
+### Step 1
 
-staffing_requirements_extractor.py uses the extracted data and calls Azure Open AI to extract staffing requirements and then stores that output in Cosmos DB.
+- rfp_extractor.py
+  - gets all files related to an RFP from an Azure Blob Storage folder and uses Azure Document Intelligence to parse the RFP files
+  - staffing_requirements_extractor.py makes a call to Azure OpenAI with full RFP and prompt to extract staffing requirements
+    - LLM result is stored in Cosmos DB with rfp_id as the partition key
+
+### Step 2
+- resume_creator.py
+  - queries Cosmos DB for the LLM result from step 1
+  - gets moq employee data
+  - calls Azure OpenAI with prompt & data to generate a resume
+  - data returned from the LLM is used to create a resume based on a template
