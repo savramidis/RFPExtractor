@@ -28,7 +28,7 @@ pip install -r requirements.txt
 
 - rfp_extractor.py
   - gets all files related to an RFP from an Azure Blob Storage folder and uses Azure Document Intelligence to parse the RFP files
-  - staffing_requirements_extractor.py makes a call to a Azure OpenAI with full RFP and prompt to extract staffing requirements
+  - staffing_requirements_extractor.py makes a call to Azure OpenAI with full RFP and prompt to extract staffing requirements
     - LLM result is stored in Cosmos DB with rfp_id as the partition key
 
 ### Step 2
