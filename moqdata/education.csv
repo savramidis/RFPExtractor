@@ -1,0 +1,11 @@
+employee_id,highest_degree,school_attended,school_location,degree,field_of_study
+894756,Bachelors,"University of California, Berkeley",United States of America,Bachelor's Degree,Computer Science
+475839,Masters,University of Maryland,United States of America,Bachelor's Degree,Information Technology
+475839,Masters,George Washington University,United States of America,Master's Degree,Cybersecurity Policy and Compliance
+582947,PhD,"University of California, Berkeley",United States of America,Bachelor's Degree,Statistics
+582947,PhD,Johns Hopkins University,United States of America,Master's Degree,Biostatistics
+582947,PhD,Harvard University,United States of America,PhD,Health Data Science
+169485,Bachelors,"University of California, Berkeley",United States of America,Bachelor's Degree,Statistics
+169485,Bachelors,New York University,United States of America,Certificate,Data Visualization
+374859,Masters,"University of California, Berkeley",United States of America,Bachelor's Degree,Business Administration
+374859,Masters,"University of California, Berkeley",United States of America,Master's Degree,Project Management

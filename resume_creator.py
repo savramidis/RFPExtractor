@@ -1,8 +1,7 @@
 import os
-import pandas as pd
 import json
+import pandas as pd
 from openai import AzureOpenAI
-from azure.storage.blob import BlobServiceClient
 from typing import List, Dict
 from docx import Document
 from cosmos_db_service import cosmos_db_service
@@ -27,20 +26,7 @@ client = AzureOpenAI(
 cosmos_db_service = cosmos_db_service()
 cosmos_db_service.initialize()
 
-def extract_staffing_requirements(documents: List[Dict]) -> Dict[str, List[Dict]]:
-    role_requirements = {}
-    for doc in documents:
-        requirements = doc.get('rfp_staffing_requirements', [])
-        for req in requirements:
-            role = req.get('required_role', 'Unknown Role')
-            if role not in role_requirements:
-                role_requirements[role] = []
-            role_requirements[role].extend(req.get('role_requirements', []))
-
-    return role_requirements
-
 def generate_resume_content(employee_data, staffing_data):
-    
     response = client.chat.completions.create(
         model=deployment_name,
         messages=[
@@ -55,7 +41,7 @@ def generate_resume_content(employee_data, staffing_data):
                     "certifications": "Project Management Professional, 2011 - Present",
                     "education": "MPA, School of Public and Environmental Affairs, Indiana University, 2010",
                     "skills": "Data Mining",
-                    "employment_history": "Booz Allen Hamilton, Senior Consultant, 2010 - Present",
+                    "employment_history": "Acme Corporation, Senior Consultant, 2010 - Present",
                     "security_clearances": "Secret"
                 }
                 You will also be provided a JSON that has information about a position's requirements for education, certifications, experience, and security clearances.
@@ -99,7 +85,7 @@ def generate_resume_content(employee_data, staffing_data):
             },
             {
                 "role": "user",
-                "content": f"""Generate a list of candidate resumes using the following employee data employee data: {employee_data}\n\n and find roles from this data: {staffing_data}\n\n which match the employees certifications."""
+                "content": f"""Generate a list of candidate resumes using the following employee data: {employee_data}\n\n and find roles from this data: {staffing_data}"""
             }
         ],
         max_tokens=4000,
@@ -205,20 +191,29 @@ def create_resume(json_matches):
     document.save(resume_name_path)
     print(f"Resume created: {resume_name_path}")
 
-# get employee data, assumes a detailed search
-# right now we are loading moq data from a json file
-employee_data_json = None
-with open('moqdata/employeeData.json', 'r') as file:
-    employee_data_json = json.load(file)
-    #print(employee_data_json)
+# get moq employee data, assumes a detailed search
+# employee_data = None
+# with open('moqdata/employeeData.json', 'r') as file:
+#     employee_data = json.load(file)
+
+csv_files = [file for file in os.listdir('moqdata') if file.endswith('.csv')]
+
+dataframes = []
+for file in csv_files:
+    df = pd.read_csv(os.path.join('moqdata', file))
+    dataframes.append(df)
+
+merged_df = pd.concat(dataframes, ignore_index=True)
+employee_data = merged_df.to_json(orient='records')
 
 # get grouped rfp staffing data
 grouped_staffing_data = cosmos_db_service.get_grouped_rfp_staffing_extract()
 
 # send employee data & rfp staffing data to OpenAI for processing
-json_matches = generate_resume_content(employee_data_json, grouped_staffing_data)
+json_matches = generate_resume_content(json.dumps(employee_data), json.dumps(grouped_staffing_data))
 
 if (json_matches):
+    #print(json_matches)
     # need a for each here
     for match in json_matches:
         create_resume(match)

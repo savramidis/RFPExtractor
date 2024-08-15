@@ -133,13 +133,13 @@
         "work_history": [
             {
                 "company": "Data Innovations",
-                "role": "Data Analyst",
+                "role": "Senior Project Manager",
                 "start_date": "2016-07-01",
                 "end_date": "2018-09-30"
             },
             {
                 "company": "AI Solutions",
-                "role": "Data Scientist",
+                "role": "Senior Project Manager",
                 "start_date": "2018-10-01",
                 "end_date": "Present"
             }
@@ -172,7 +172,7 @@
         "work_history": [
             {
                 "company": "CodeWorks",
-                "role": "Software Developer",
+                "role": "Scrum Master",
                 "start_date": "2013-09-01",
                 "end_date": "2016-11-30"
             },
@@ -219,6 +219,47 @@
             {
                 "company": "AI Insight",
                 "role": "Data Scientist",
+                "start_date": "2015-09-01",
+                "end_date": "Present"
+            }
+        ]
+    },
+    {
+        "employee_id": 100006,
+        "name": "John Temp",
+        "skills": [
+            "Python",
+            "Data Science",
+            "SQL",
+            "Data Modeling",
+            "Object Oriented Programming",
+            "Machine Learning"
+        ],
+        "education": [
+            {
+                "degree": "Bachelors in Mathematics",
+                "institution": "University of Michigan",
+                "year_of_completion": 2012
+            }
+        ],
+        "certifications": [
+            {
+                "name": "Certified Data Scientist",
+                "issuer": "Scrum Alliance",
+                "issue_date": "2019-10-25",
+                "expiration_date": "2022-10-25"
+            }
+        ],
+        "work_history": [
+            {
+                "company": "DataPeople",
+                "role": "Program Manager",
+                "start_date": "2012-07-01",
+                "end_date": "2015-08-31"
+            },
+            {
+                "company": "AI Insight",
+                "role": "Program Manager",
                 "start_date": "2015-09-01",
                 "end_date": "Present"
             }
