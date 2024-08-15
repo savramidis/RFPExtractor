@@ -6,7 +6,7 @@ Simple POC that extracts staffing requirements from a Request from a Proposal an
 
 ### AZURE_STORAGE_CONNECTION_STRING
 ### AZURE_STORAGE_CONTAINER_NAME
-### AZURE_STORAGE_FOLDER=<this is where the files for a single request for proposal are stored>
+### AZURE_STORAGE_FOLDER
 ### AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT
 ### AZURE_DOCUMENT_INTELLIGENCE_KEY
 ### AZURE_OPENAI_API_KEY
@@ -16,7 +16,7 @@ Simple POC that extracts staffing requirements from a Request from a Proposal an
 ### AZURE_COSMOS_KEY
 ### AZURE_COSMOS_DATABASE_NAME
 ### AZURE_COSMOS_CONTAINER_NAME
-### LOCAL_RESUME_FOLDER=<this is where the created resume will be saved>
+### LOCAL_RESUME_FOLDER
 
 ## Set Up
 Set all your environment variables
