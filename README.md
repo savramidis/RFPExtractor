@@ -1,5 +1,5 @@
 # RFP Extractor
-Simple POC that extracts staffing requirements from a Request from a Proposal and creates a resume from a template.
+Python-based Proof of Concept (POC) aimed at automating the process of matching employee profiles with staffing requirements specified in Requests for Proposals (RFPs). This solution leverages Azure's OpenAI GPT-4o model to intelligently analyze and align employee data with the key requirements outlined in the RFPs.
 
 ## Required for local .env
 ## Configuration Settings
