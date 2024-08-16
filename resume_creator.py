@@ -126,9 +126,6 @@ def generate_resume_content(employee_data, staffing_data):
 
             json_data = json.loads(cleaned_json)
 
-            #cleaned_json = json.dumps(json_data, indent=4)
-            #print(cleaned_json)
-
             return json_data
         except (json.JSONDecodeError, ValueError, IndexError) as e:
             print("Error: The response content is not valid JSON")
@@ -150,42 +147,68 @@ def create_resume(json_matches):
     education = json_matches["education"]
     key_competencies = json_matches["key_competencies"]
     certifications = json_matches["certifications"]
-
     professional_summary = json_matches["professional_summary"]
+    relevant_experience = json_matches['relevant_experience']
+    employment_history = json_matches['employment_history']
+    security_clearances = json_matches['security_clearances']
      
     for paragraph in document.paragraphs:
         if 'Name' in paragraph.text:
             paragraph.text = paragraph.text.replace('Name', name)
-            paragraph.text += "\n" + professional_summary
-            
-        for table in document.tables:
-            for row in table.rows:
-                # Check the leftmost cell (first cell) for the search text
-                left_cell = row.cells[0]
-                for paragraph in left_cell.paragraphs:
-                    if 'Key Competencies' in paragraph.text:
-                        # If found, set the text in the rightmost cell
-                        right_cell = row.cells[-1]
-                        for right_paragraph in right_cell.paragraphs:
-                            key_competencies_str = "\n".join(key_competencies)
-                            right_paragraph.text = key_competencies_str
-                            break
+            paragraph.text += "\n\n" + professional_summary
+    
+    for table in document.tables:
+        for row in table.rows:
+            # Check the leftmost cell (first cell) for the search text
+            left_cell = row.cells[0]
+            for paragraph in left_cell.paragraphs:
+                if 'Key Competencies' in paragraph.text:
+                    # If found, set the text in the rightmost cell
+                    right_cell = row.cells[-1]
+                    for right_paragraph in right_cell.paragraphs:
+                        key_competencies_str = "\n\n".join(key_competencies)
+                        right_paragraph.text = key_competencies_str
+                        break
 
-                    if 'Education' in paragraph.text:
-                        # If found, set the text in the rightmost cell
-                        right_cell = row.cells[-1]
-                        for right_paragraph in right_cell.paragraphs:
-                            education_str = "\n".join(education)
-                            right_paragraph.text = education_str
-                            break
+                if 'Education' in paragraph.text:
+                    # If found, set the text in the rightmost cell
+                    right_cell = row.cells[-1]
+                    for right_paragraph in right_cell.paragraphs:
+                        education_str = "\n\n".join(education)
+                        right_paragraph.text = education_str
+                        break
 
-                    if 'Training & Certifications' in paragraph.text:
-                        # If found, set the text in the rightmost cell
-                        right_cell = row.cells[-1]
-                        for right_paragraph in right_cell.paragraphs:
-                            certifications_str = "\n".join(certifications)
-                            right_paragraph.text = certifications_str
-                            break
+                if 'Training & Certifications' in paragraph.text:
+                    # If found, set the text in the rightmost cell
+                    right_cell = row.cells[-1]
+                    for right_paragraph in right_cell.paragraphs:
+                        certifications_str = "\n\n".join(certifications)
+                        right_paragraph.text = certifications_str
+                        break
+              
+                if 'Security Clearances' in paragraph.text:
+                    # If found, set the text in the rightmost cell
+                    right_cell = row.cells[-1]
+                    for right_paragraph in right_cell.paragraphs:
+                        security_clearances_str = "\n\n".join(security_clearances)
+                        right_paragraph.text = security_clearances_str
+                        break
+
+                if 'Experience' in paragraph.text:
+                    # If found, set the text in the rightmost cell
+                    right_cell = row.cells[-1]
+                    for right_paragraph in right_cell.paragraphs:
+                        relevant_experience_str = "\n\n".join(relevant_experience)
+                        right_paragraph.text = relevant_experience_str
+                        break
+
+                if 'History' in paragraph.text:
+                    # If found, set the text in the rightmost cell
+                    right_cell = row.cells[-1]
+                    for right_paragraph in right_cell.paragraphs:
+                        employment_history_str = "\n\n".join(employment_history)
+                        right_paragraph.text = employment_history_str
+                        break
 
     resume_name_path =local_resume_folder + "\\" + name + "_Resume.docx"
     document.save(resume_name_path)
@@ -213,7 +236,5 @@ grouped_staffing_data = cosmos_db_service.get_grouped_rfp_staffing_extract()
 json_matches = generate_resume_content(json.dumps(employee_data), json.dumps(grouped_staffing_data))
 
 if (json_matches):
-    #print(json_matches)
-    # need a for each here
     for match in json_matches:
         create_resume(match)
