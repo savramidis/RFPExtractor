@@ -54,6 +54,15 @@ class cosmos_db_service:
             raise
 
     def get_grouped_rfp_staffing_extract(self):
+        """
+        Retrieves and groups RFP (Request for Proposal) staffing extracts from the Cosmos DB.
+        This method queries the Cosmos DB container for items with a status of 'rfp_extracted' and groups them by their 'rfp_id'.
+        Returns:
+            dict: A dictionary where the keys are 'rfp_id' values and the values are lists of items associated with each 'rfp_id'.
+        Raises:
+            ValueError: If the CosmosDbService has not been initialized.
+            CosmosHttpResponseError: If there is an error querying the items from the Cosmos DB.
+        """
         if self.container is None:
             raise ValueError("The CosmosDbService has not been initialized. Call initialize() before using this method.")
         try:
