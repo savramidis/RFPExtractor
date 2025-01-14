@@ -28,6 +28,22 @@ class cosmos_db_service:
             raise
 
     def insert_rfp_staffing_extract(self, rfp_staffing_extract):
+        """
+        Inserts or updates an RFP staffing extract item in the Cosmos DB container.
+
+        This method will insert a new item or update an existing item in the Cosmos DB container.
+        If the container has not been initialized, it raises a ValueError.
+
+        Args:
+            rfp_staffing_extract (dict): The RFP staffing extract item to be inserted or updated.
+
+        Returns:
+            dict: The created or updated item.
+
+        Raises:
+            ValueError: If the CosmosDbService has not been initialized.
+            exceptions.CosmosHttpResponseError: If there is an error during the upsert operation.
+        """
         if self.container is None:
             raise ValueError("The CosmosDbService has not been initialized. Call initialize() before using this method.")
         try:
